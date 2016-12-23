@@ -111,7 +111,7 @@ var storage = (function () {
                 }
             });
         },
-        // Add a BulkGetItem call
+        // Loads a single song data
         loadSongData: function(date, callback) {
             var dateValue = FormatDate(date);
 
@@ -119,6 +119,38 @@ var storage = (function () {
                               Key: { date: {S: dateValue}}}, function (error, data) {
                 var songData;
 
+                if (error || (data.Item == undefined))
+                {
+                    // Sorry, we don't have a registered user with this ID
+                    // We require you to explicitly create a new one
+                    callback("Can't find song for " + dateValue, null);
+                }
+                else
+                {
+                    songData = new SongData(dateValue, data.Item.title.S, data.Item.artist.S, data.Item.comments.S,
+                                            data.Item.highVote.S, data.Item.lowVote.S, data.Item.weblink.S);
+                    callback(null, songData);
+                }
+            });
+        },
+        // Does a bulk load of Song Data
+        bulkLoadSongData : function(date, numberOfEntries, callback) {
+            var params = {};
+            var dateKeys = [];
+
+            // Generate the keys
+            var i;
+
+            for (i = 0; i < numberOfEntries; i++)
+            {
+                dateKeys.push({date: {S: FormatDate(date)}});
+                date.setDate(date.getDate() - 1);
+            }
+
+            params.RequestItems = {};
+            params.RequestItems.SOTDSongData = {};
+            params.RequestItems.SOTDSongData.Keys = dateKeys;
+            dynamodb.batchGetItem(params, function(error, data) {
                 if (error || (data.Item == undefined))
                 {
                     // Sorry, we don't have a registered user with this ID
