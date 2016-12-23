@@ -13,41 +13,39 @@ var storage = require("./storage");
 module.exports = {
     // This function returns the Song of the Day
     GetSongOfTheDay : function (callback) {
-        // OK, we'll see if there's a song for today
-        // If not, we'll loop backwards over the last 31 days to see if there was a song for that day
-        var date = Date.UTCNow();
-        var resultSongData = null;
-
-        storage.loadSongData(date, function(error, songData) {
-            if (songData)
+        // Pull song list from the past 31 days, and find the most recent one in the list
+        // Just in case we haven't updated it for a while
+        storage.bulkLoadSongData(Date.now(), 31, (err, songList) =>
+        {
+            if (err)
             {
-                resultSongData = songData;
+                console.log(err);
+                callback(err, null);
             }
             else
             {
-                // OK, let's loop backwards
-                var i;
+                // Find the most recent one
+                var mostRecent = null;
 
-                date.setDate(date.getDate() - 1);
-                storage.loadSongData(date, function(error, songData) {
-                    if (songData)
+                songList.forEach(song => {
+                    if (!mostRecent)
                     {
-                        // We've got it!
+                        mostRecent = song;
+                    }
+                    else
+                    {
+                        let recentDate = new Date(mostRecent.date);
+                        let songDate = new Date(song.date);
+
+                        if (songDate > recentDate)
+                        {
+                            mostRecent = song;
+                        }
                     }
                 });
 
-                for (i = 0; i < 31; i++)
-                {
-                    // Subtract a day and try this one
-                    date.setDate(date.getDate() - 1);
-                    storage.loadSongData(date, function(error, songData) {
-                        if (songData)
-                        {
-                            // Got it!
-                            break;
-                        }
-                    });
-                }
+                // Return the most recent song
+                callback(null, mostRecent);
             }
         });
     },

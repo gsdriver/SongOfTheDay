@@ -15,12 +15,13 @@ if (config.runDBLocal) {
     });
 }
 
-// Format a date as YYYY-MM-DD (UTC)
-function FormatDate(date)
+// Format a date as YYYY-MM-DD
+function FormatDate(oldDate)
 {
-    var year = date.getUTCFullYear();
-    var month = date.getUTCFullMonth() + 1;
-    var day = date.getUTCDate();
+    var date = new Date(oldDate);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
 
     return (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
 }
@@ -137,31 +138,41 @@ var storage = (function () {
         bulkLoadSongData : function(date, numberOfEntries, callback) {
             var params = {};
             var dateKeys = [];
+            var dateValue = FormatDate(date);
 
             // Generate the keys
             var i;
+            var keyDate = new Date(date);
 
             for (i = 0; i < numberOfEntries; i++)
             {
-                dateKeys.push({date: {S: FormatDate(date)}});
-                date.setDate(date.getDate() - 1);
+                dateKeys.push({date: {S: FormatDate(keyDate)}});
+                keyDate.setDate(keyDate.getDate() - 1);
             }
 
             params.RequestItems = {};
             params.RequestItems.SOTDSongData = {};
             params.RequestItems.SOTDSongData.Keys = dateKeys;
             dynamodb.batchGetItem(params, function(error, data) {
-                if (error || (data.Item == undefined))
+                if (error || (data.Responses == undefined))
                 {
                     // Sorry, we don't have a registered user with this ID
                     // We require you to explicitly create a new one
                     callback("Can't find song for " + dateValue, null);
+                    console.log(JSON.stringify(data));
                 }
                 else
                 {
-                    songData = new SongData(dateValue, data.Item.title.S, data.Item.artist.S, data.Item.comments.S,
-                                            data.Item.highVote.S, data.Item.lowVote.S, data.Item.weblink.S);
-                    callback(null, songData);
+                    // Process into an array
+                    var songList = [];
+
+                    data.Responses.SOTDSongData.forEach(song => {
+                        var songData = new SongData(song.date.S, song.title.S, song.artist.S, song.comments.S,
+                                                song.highVote.S, song.lowVote.S, song.weblink.S);
+                        songList.push(songData);
+                    });
+
+                    callback(null, songList);
                 }
             });
         }

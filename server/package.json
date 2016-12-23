@@ -1,0 +1,23 @@
+{
+  "name": "sotdserver",
+  "version": "0.0.1",
+  "description": "Song of the day server",
+  "main": "app.js",
+  "dependencies": {
+    "aws-sdk": "^2.7.19"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gsdriver/SongOfTheDay.git"
+  },
+  "author": "gsdriver@live.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gsdriver/SongOfTheDay/issues"
+  },
+  "homepage": "https://github.com/gsdriver/SongOfTheDay#readme"
+}
