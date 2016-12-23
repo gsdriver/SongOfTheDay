@@ -26,6 +26,20 @@ function FormatDate(oldDate)
     return (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
 }
 
+function ParseVotes(votes)
+{
+    var voteArray = votes.split(";");
+    var voteObj = [];
+
+    voteArray.forEach(vote => {
+        var oneVote = vote.split(":");
+        if (oneVote.length == 2)
+        {
+            voteObj.push({user: oneVote[0], vote: oneVote[1]})
+        }
+    });
+}
+
 var storage = (function () {
     var dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
@@ -57,15 +71,16 @@ var storage = (function () {
     };
 
     // The SongData class stores information about a given song
-    function SongData(date, title, artist, comments, highVote, lowVote, weblink) {
+    function SongData(date, title, artist, comments, highVote, lowVote, weblink, votes) {
         // Save values
-        this.date = (date) ? FormatDate(date) : FormatDate(Date.UTCNow());
-        this.title = (title) ? title : "";
-        this.artist = (artist) ? artist : "";
-        this.comments = (comments) ? comments : "";
-        this.highVote = (highVote) ? highVote : "";
-        this.lowVote = (lowVote) ? lowVote : "";
-        this.weblink = (weblink) ? weblink : "";
+        this.date = (date && date.S) ? FormatDate(date.S) : FormatDate(Date.UTCNow());
+        this.title = (title && title.S) ? title.S : "";
+        this.artist = (artist && artist.S) ? artist.S : "";
+        this.comments = (comments && comments.S) ? comments.S : "";
+        this.highVote = (highVote && highVote.S) ? highVote.S : "";
+        this.lowVote = (lowVote && lowVote.S) ? lowVote.S : "";
+        this.weblink = (weblink && weblink.S) ? weblink.S : "";
+        this.votes = (votes && votes.S) ? ParseVotes(votes.S) : [];
     }
 
     SongData.prototype = {
@@ -167,8 +182,8 @@ var storage = (function () {
                     var songList = [];
 
                     data.Responses.SOTDSongData.forEach(song => {
-                        var songData = new SongData(song.date.S, song.title.S, song.artist.S, song.comments.S,
-                                                song.highVote.S, song.lowVote.S, song.weblink.S);
+                        var songData = new SongData(song.date, song.title, song.artist, song.comments,
+                                                song.highVote, song.lowVote, song.weblink);
                         songList.push(songData);
                     });
 
