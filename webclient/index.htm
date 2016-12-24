@@ -1,26 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Song of the Day</title>
-<meta charset="UTF-8">
+    <title>Song of the Day</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="js\config.js"></script>
+    <script src="js\sotd.js"></script>
 </head>
 
 <body>
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.8&appId=1700681410244118";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
-
-<div class="fb-login-button" data-max-rows="1" data-size="large" data-show-faces="false" data-auto-logout-link="false"></div>
-
-<div id="status">
+<div>
+    <p class="sotd-song">The Song of the Day for </p>
+    <p class="sotd-comments"></p>
+    <a class="sotd-weblink">Listen to it here</a>
 </div>
-
 </body>
 </html>
-
-
