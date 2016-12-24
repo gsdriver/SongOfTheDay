@@ -12,7 +12,7 @@ var port = process.env.PORT || 3000;
 var host = process.env.HOST || 'localhost';
 
 // Create the server
-const server = http.createServer((req, res) => {  
+const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "GET, PUT, POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -20,6 +20,7 @@ const server = http.createServer((req, res) => {
     // We only support GET
     if (req.method == 'GET')
     {
+        res.setHeader('Content-Type', 'application/json');
         if (req.url === "/favicon.ico")
         {
             res.statusCode = 404;
@@ -28,9 +29,9 @@ const server = http.createServer((req, res) => {
         }
 
         // Parse out the querystring to see how they are calling us
-        var params = querystring.parse(req.url, "?");
-
-        // We are going to call the Game service to get a JSON representation of the game
+        var urlParams = req.url.substring(req.url.indexOf("?") + 1);
+        var params = querystring.parse(urlParams);
+        console.log(JSON.stringify(params));
         switch (params.action)
         {
             case "getsong":
@@ -38,13 +39,11 @@ const server = http.createServer((req, res) => {
                     if (error)
                     {
                         res.statusCode = 400;
-                        res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({error: error}));
                     }
                     else
                     {
                         res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(song));
                     }
                 });
@@ -54,23 +53,43 @@ const server = http.createServer((req, res) => {
                     if (error)
                     {
                         res.statusCode = 400;
-                        res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({error: error}));
                     }
                     else
                     {
                         res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify(song));
                     }
                 });
                 break;
+            case "register":
+                // We need an access token to proceed
+                if (!params.access_token)
+                {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({error: "Need access_token"}));
+                }
+                else
+                {
+                    songserver.RegisterUser(params.access_token, (error) => {
+                        if (error)
+                        {
+                            res.statusCode = 400;
+                            res.end(JSON.stringify({error: error}));
+                        }
+                        else
+                        {
+                            res.statusCode = 200;
+                            res.end();
+                        }
+                    });
+                }
+                break;
             default:
                 // Unknown action
-                var err = (params.action) ? ("Received unknown action " + action) : "Did not receive an action";
+                var err = (params.action) ? ("Received unknown action " + params.action) : "Did not receive an action";
                 console.log(err);
                 res.statusCode = 400;
-                res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({error: err}));
                 break;
         }

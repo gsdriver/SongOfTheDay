@@ -5,6 +5,7 @@
 "use strict";
 
 var storage = require("./storage");
+var https = require("https");
 
 /*
  * Exported functions
@@ -59,6 +60,29 @@ module.exports = {
     },
     // This function registers a new user in our DB
     RegisterUser : function (authID, callback) {
+        // Call Facebook API to get user information
+        var options = { hostname: 'graph.facebook.com', port: 443, path: '/me' + '?access_token=' + authID, method: "GET" };
+
+console.log("Making FB Call " + options.path);
+        var req = https.request(options, (res) => {
+            if (res.statusCode == 200)
+            {
+                // Process the response
+                var fulltext = '';
+                res.on('data', (data) => {fulltext += data;});
+                res.on('end', () => {
+                    var fbUser = JSON.parse(fulltext);
+
+                    // Pull out the id to use
+                    console.log("UserID is " + fbUser.id);
+                });
+            }
+            else
+            {
+                // Sorry, there was an error calling the HTTP endpoint
+                callback("Unable to call endpoint", null);
+            }
+        });
     }
 };
 
