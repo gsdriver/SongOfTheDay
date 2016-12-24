@@ -68,6 +68,7 @@ module.exports = {
                 storage.loadUserData(user.id, (err, userData) => {
                     if (err)
                     {
+                        console.log("Load user error " + err);
                         callback(err);
                     }
                     else
@@ -122,7 +123,7 @@ module.exports = {
             }
             else
             {
-                var userData = new storage.UserData(user.id, user.email);
+                var userData = storage.createNewUser(user.id, user.email);
 
                 userData.save((err) => {
                     callback(err);

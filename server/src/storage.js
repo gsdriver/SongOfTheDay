@@ -98,7 +98,7 @@ var storage = (function () {
     return {
         loadUserData: function(userID, callback) {
             dynamodb.getItem({TableName: 'SOTDUserData',
-                              Key: { UserID: {S: session.user.userId}}}, function (error, data) {
+                              Key: { UserID: {S: userID}}}, function (error, data) {
                 var userData;
 
                 if (error || (data.Item == undefined))
@@ -113,6 +113,9 @@ var storage = (function () {
                     callback(null, userData);
                 }
             });
+        },
+        createNewUser: function(userID, email) {
+            return new UserData(userID, email);
         },
         // Loads a single song data
         loadSongData: function(date, callback) {
