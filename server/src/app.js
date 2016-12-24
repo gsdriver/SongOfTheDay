@@ -85,6 +85,38 @@ const server = http.createServer((req, res) => {
                     });
                 }
                 break;
+            case "vote":
+                if (!params.access_token)
+                {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({error: "Need access_token"}));
+                }
+                else if (!params.date)
+                {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({error: "Need date parameter"}));
+                }
+                else if (!params.vote)
+                {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({error: "Need vote parameter"}));
+                }
+                else
+                {
+                    songserver.SubmitVote(params.access_token, params.date, params.vote, (error) => {
+                        if (error)
+                        {
+                            res.statusCode = 400;
+                            res.end(JSON.stringify({error: error}));
+                        }
+                        else
+                        {
+                            res.statusCode = 200;
+                            res.end();
+                        }
+                    });
+                }
+                break;
             default:
                 // Unknown action
                 var err = (params.action) ? ("Received unknown action " + params.action) : "Did not receive an action";

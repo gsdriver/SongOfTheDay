@@ -26,20 +26,6 @@ function FormatDate(oldDate)
     return (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
 }
 
-function ParseVotes(votes)
-{
-    var voteArray = votes.split(";");
-    var voteObj = [];
-
-    voteArray.forEach(vote => {
-        var oneVote = vote.split(":");
-        if (oneVote.length == 2)
-        {
-            voteObj.push({user: oneVote[0], vote: oneVote[1]})
-        }
-    });
-}
-
 var storage = (function () {
     var dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
@@ -80,7 +66,7 @@ var storage = (function () {
         this.highVote = (highVote && highVote.S) ? highVote.S : "";
         this.lowVote = (lowVote && lowVote.S) ? lowVote.S : "";
         this.weblink = (weblink && weblink.S) ? weblink.S : "";
-        this.votes = (votes && votes.S) ? ParseVotes(votes.S) : [];
+        this.votes = (votes && votes.S) ? JSON.parse(votes.S) : [];
     }
 
     SongData.prototype = {
@@ -93,7 +79,8 @@ var storage = (function () {
                         comments: {S: this.comments},
                         highVote: {S: this.highVote},
                         lowVote: {S: this.lowVote},
-                        weblink: {S: this.weblink}}
+                        weblink: {S: this.weblink},
+                        votes: {S: JSON.stringify(this.votes)}}
             }, function(err, data) {
                 // We only need to pass the error back - no other data to return
                 if (err)
