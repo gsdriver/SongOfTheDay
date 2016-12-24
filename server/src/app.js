@@ -49,6 +49,22 @@ const server = http.createServer((req, res) => {
                     }
                 });
                 break;
+            case "getresults":
+                songserver.GetResults((error, song) => {
+                    if (error)
+                    {
+                        res.statusCode = 400;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify({error: error}));
+                    }
+                    else
+                    {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify(song));
+                    }
+                });
+                break;
             default:
                 // Unknown action
                 var err = (params.action) ? ("Received unknown action " + action) : "Did not receive an action";

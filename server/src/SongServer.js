@@ -13,7 +13,7 @@ var storage = require("./storage");
 module.exports = {
     // This function returns the Song of the Day
     GetSongOfTheDay : function (callback) {
-        GetCurrentSong((err, song) => {
+        GetSong(true, (err, song) => {
             if (err)
             {
                 callback(err, null);
@@ -31,6 +31,28 @@ module.exports = {
     },
     // This function returns the results from the last Song of the Day
     GetResults : function (callback) {
+        GetSong(false, (err, song) => {
+            if (err)
+            {
+                callback(err, null);
+            }
+            else
+            {
+                // Process the votes (get an average), and return everything
+                var resultSong = { date: song.date, title: song.title, artist: song.artist,
+                    comments: song.comments, highVote: song.highVote, lowVote: song.lowVote,
+                    weblink: song.weblink };
+                var voteTotal = 0;
+
+                if (song.votes && (song.votes.length > 0))
+                {
+                    song.votes.forEach(vote => {voteTotal += vote;});
+                    resultSong.result = (voteTotal / song.votes.length);
+                }
+
+                callback(null, resultSong);
+            }
+        });
     },
     // This function allows the user to vote - note that we require an auth token
     SubmitVote : function (authID, songID, vote, callback) {
@@ -44,7 +66,7 @@ module.exports = {
  * Internal functions
  */
 
-function GetCurrentSong(callback)
+function GetSong(current, callback)
 {
     // Pull song list from the past 31 days, and find the most recent one in the list
     // Just in case we haven't updated it for a while
@@ -57,28 +79,42 @@ function GetCurrentSong(callback)
         }
         else
         {
-            // Find the most recent one
+            // Find either the most recent one or the second most recent one, depending
+            // on what the caller has asked for
             var mostRecent = null;
+            var secondMostRecent = null;
+            var recentDate;
+            var songDate;
 
             songList.forEach(song => {
+                // Set the most recent
+                songDate = new Date(song.date);
                 if (!mostRecent)
                 {
                     mostRecent = song;
                 }
                 else
                 {
-                    let recentDate = new Date(mostRecent.date);
-                    let songDate = new Date(song.date);
-
+                    recentDate = new Date(mostRecent.date);
                     if (songDate > recentDate)
                     {
+                        secondMostRecent = mostRecent;
                         mostRecent = song;
+                    }
+                    else if (secondMostRecent)
+                    {
+                        // Not the most recent, maybe the second most recent?
+                        recentDate = new Date(secondMostRecent.date);
+                        if (songDate > recentDate)
+                        {
+                            secondMostRecent = song;
+                        }
                     }
                 }
             });
 
             // Return the most recent song
-            callback(null, mostRecent);
+            callback(null, (current ? mostRecent : secondMostRecent));
         }
     });
 }
