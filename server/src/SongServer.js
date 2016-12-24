@@ -126,6 +126,7 @@ module.exports = {
                 var userData = storage.createNewUser(user.id, user.email);
 
                 userData.save((err) => {
+                console.log(err);
                     callback(err);
                 });
             }
@@ -192,6 +193,10 @@ function GetSong(current, callback)
 
 function GetUserFromToken(authID, callback)
 {
+    var id = 10211990886952677;
+    callback(null, {id: id.toString(), email: "gsdriver@hotmail.com"});
+    return;
+
     // Call Facebook API to get user information
     var options = { hostname: 'graph.facebook.com', port: 443, path: '/me' + '?access_token=' + authID, method: "GET" };
 
