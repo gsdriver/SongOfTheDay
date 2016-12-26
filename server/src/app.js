@@ -1,141 +1,51 @@
-//
-// Web interface for Song of the Day
-//
+var express = require('express');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 
-"use strict";
+var getsong = require('./routes/getsong');
+var getresults = require('./routes/getresults');
+var register = require('./routes/register');
+var vote = require('./routes/vote');
 
-const http = require('http');
-const querystring = require('querystring');
-const songserver = require('./SongServer');
+var app = express();
 
-var port = process.env.PORT || 3000;
-var host = process.env.HOST || 'localhost';
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 
-// Create the server
-const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', "GET, PUT, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.use('/getsong', getsong);
+app.use('/getresults', getresults);
+app.use('/register', register);
+app.use('/vote', vote);
 
-    // We only support GET
-    if (req.method == 'GET')
-    {
-        res.setHeader('Content-Type', 'application/json');
-        if (req.url === "/favicon.ico")
-        {
-            res.statusCode = 404;
-            res.end();
-            return;
-        }
-
-        // Parse out the querystring to see how they are calling us
-        var urlParams = req.url.substring(req.url.indexOf("?") + 1);
-        var params = querystring.parse(urlParams);
-        console.log(JSON.stringify(params));
-        switch (params.action)
-        {
-            case "getsong":
-                songserver.GetSongOfTheDay((error, song) => {
-                    if (error)
-                    {
-                        res.statusCode = 400;
-                        res.end(JSON.stringify({error: error}));
-                    }
-                    else
-                    {
-                        res.statusCode = 200;
-                        res.end(JSON.stringify(song));
-                    }
-                });
-                break;
-            case "getresults":
-                songserver.GetResults((error, song) => {
-                    if (error)
-                    {
-                        res.statusCode = 400;
-                        res.end(JSON.stringify({error: error}));
-                    }
-                    else
-                    {
-                        res.statusCode = 200;
-                        res.end(JSON.stringify(song));
-                    }
-                });
-                break;
-            case "register":
-                // We need an access token to proceed
-                if (!params.access_token)
-                {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({error: "Need access_token"}));
-                }
-                else
-                {
-                    songserver.RegisterUser(params.access_token, (error) => {
-                        if (error)
-                        {
-                            res.statusCode = 400;
-                            res.end(JSON.stringify({error: error}));
-                        }
-                        else
-                        {
-                            res.statusCode = 200;
-                            res.end();
-                        }
-                    });
-                }
-                break;
-            case "vote":
-                if (!params.access_token)
-                {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({error: "Need access_token"}));
-                }
-                else if (!params.date)
-                {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({error: "Need date parameter"}));
-                }
-                else if (!params.vote)
-                {
-                    res.statusCode = 400;
-                    res.end(JSON.stringify({error: "Need vote parameter"}));
-                }
-                else
-                {
-                    songserver.SubmitVote(params.access_token, params.date, params.vote, (error) => {
-                        if (error)
-                        {
-                            res.statusCode = 400;
-                            res.end(JSON.stringify({error: error}));
-                        }
-                        else
-                        {
-                            res.statusCode = 200;
-                            res.end();
-                        }
-                    });
-                }
-                break;
-            default:
-                // Unknown action
-                var err = (params.action) ? ("Received unknown action " + params.action) : "Did not receive an action";
-                console.log(err);
-                res.statusCode = 400;
-                res.end(JSON.stringify({error: err}));
-                break;
-        }
-    }
-    else
-    {
-        // We don't support this
-        res.statusCode = 403;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({error: "Only GET is supported"}));
-    }
+// Allow CORS
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', "GET, PUT, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 });
 
-server.listen(port, host, () => {
-    console.log('Server listening on port ' + host + ':' + port);
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;

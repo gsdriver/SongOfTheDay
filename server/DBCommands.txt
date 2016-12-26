@@ -1,0 +1,6 @@
+aws dynamodb create-table --table-name SOTDUserData --attribute-definitions AttributeName=userID,AttributeType=S --key-schema AttributeName=userID,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://locahost:8000
+
+aws dynamodb create-table --table-name SOTDSongData --attribute-definitions AttributeName=date,AttributeType=S --key-schema AttributeName=date,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 --endpoint-url http://locahost:8000
+
+// For CORS
+https://chrome.google.com/webstore/category/extensions?hl=en-US
