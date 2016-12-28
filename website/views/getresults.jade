@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= title
+  p Thanks for voting - check back tomorrow to see the results
+  p
+  p The song for #{song.date} is #{song.title} by #{song.artist}
+  p #{song.comments}
+  a(href=song.weblink) Listen to it here
+  = "\n"
+  h2 Results from yesterday
+  p
+  p The song for #{oldsong.date} was #{oldsong.title} by #{oldsong.artist}
+  p The popular vote was #{oldsong.result}
+  p #{oldsong.comments}
+  a(href=oldsong.weblink) Listen to it here
+
