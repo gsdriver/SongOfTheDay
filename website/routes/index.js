@@ -10,6 +10,8 @@ var utils = require("../Utils");
 //   If the user is logged in and registered with SOTD, then we display the voting options
 router.get('/', function(req, res, next) {
     // Start by loading the song
+    var params = { title: "Song of the Day", loginlink: "\\login\\facebook" };
+
     utils.GetSong(true, (err, song) => {
         if (err)
         {
@@ -18,20 +20,38 @@ router.get('/', function(req, res, next) {
         else
         {
             // Save the details of the song, which we'll use when we vote
+            params.song = song;
             res.cookie("song", song);
             if (req.cookies.fbUser && req.cookies.fbUser.id)
             {
                 // We have an ID - now, are they registered with SOTD?
+                params.loggedIn = true;
                 storage.loadUserData(req.cookies.fbUser.id, (err, userData) => {
-                    res.render("index", {title: "Song of the Day", loggedIn: true, registered: (!err),
-                                    loginlink: "\\login\\facebook", song: song});
+                    params.registered = (!err);
+                    if (!err)
+                    {
+                        // They are registered, great.  Oh, did they vote already?
+                        storage.loadVoteData(req.cookies.fbUser.id, song.date, (err, vote) => {
+                            if (vote)
+                            {
+                                params.yourVote = vote.vote;
+                            }
+
+                            res.render("index", params);
+                        });
+                    }
+                    else
+                    {
+                        res.render("index", params);
+                    }
                 });
             }
             else
             {
                 // No Facebook ID, so they have to login first
-                res.render("index", {title: "Song of the Day", loggedIn: false, registered: false,
-                                    loginlink: "\\login\\facebook", song: song});
+                params.loggedIn = false;
+                params.registered = false;
+                res.render("index", params);
             }
         }
     });

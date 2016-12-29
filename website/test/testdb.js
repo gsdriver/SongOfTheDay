@@ -4,16 +4,20 @@ var storage = require("../storage");
 var AWS = require("aws-sdk");
 
 // So what do you want to test?
-var printUsers = false;
-var printSongs = false;
-var printVotes = false;
+var printUsers = true;
+var printSongs = true;
+var printVotes = true;
+var getVoteDate = null; //"2016-12-28";
+
 var createTables = false;
-var getVoteDate = "2016-12-28";
 
 var deleteUsers = false;
+var deleteSongs = false;
+var deleteVotes = false;
+
 var addSongs = false;
 var addVotes = false;
-var deleteVotes = false;
+
 
 function GetAllUsers(callback)
 {
@@ -135,8 +139,8 @@ function createVotes(callback)
 function CreateTables()
 {
     createUserData((err) => console.log("Create UserData " + err));
-    createSongData((err) => console.log("Create UserData " + err));
-    createVotes((err) => console.log("Create UserData " + err));
+    createSongData((err) => console.log("Create SongData " + err));
+    createVotes((err) => console.log("Create Votes " + err));
 }
 
 // Printing
@@ -198,6 +202,23 @@ if (deleteUsers)
                 dynamodb.deleteItem({TableName: 'SOTDUserData',
                                           Key: { userID: {S: user.userID.S}}}, function (error, data) {
                       console.log("Deleted " + user.userID.S)
+                });
+            });
+        }
+    });
+}
+
+if (deleteSongs)
+{
+    var dynamodb = new AWS.DynamoDB();
+
+    GetAllSongs((err, songs) => {
+        if (songs)
+        {
+            songs.forEach(song => {
+                dynamodb.deleteItem({TableName: 'SOTDSongData',
+                                          Key: { date: {S: song.date.S}}}, function (error, data) {
+                      console.log("Deleted " + song.date.S)
                 });
             });
         }
