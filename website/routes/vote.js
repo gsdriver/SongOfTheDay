@@ -28,50 +28,8 @@ router.post('*', function(req, res, next) {
 
 function SaveVote(id, songDate, vote, callback)
 {
-    storage.loadUserData(id, (err, userData) => {
-        if (err)
-        {
-            callback(err);
-        }
-        else
-        {
-            // OK, user is registered - now make sure the song is active and
-            // if so let's add this vote to the vote array
-            utils.GetSong(true, (err, song) => {
-                if (err)
-                {
-                    callback(err);
-                }
-                else
-                {
-                    // Match song by ID
-                    // Make sure they haven't already voted (if so, override)
-                    if (songDate != song.date)
-                    {
-                        callback("The current song is dated " + song.date);
-                    }
-                    else
-                    {
-                        // If they already voted, remove the existing vote
-                        var i;
-
-                        for (i = 0; i < song.votes.length; i++)
-                        {
-                            if (song.votes[i].user == user.id)
-                            {
-                                // We want to remove this one and break
-                                song.votes.splice(i, 1);
-                                break;
-                            }
-                        }
-
-                        song.votes.push({user: id, vote: vote});
-                        song.save(err => callback(err));
-                    }
-                }
-            });
-        }
-    });
+    var voteData = storage.createVoteData(id, songDate, vote);
+    voteData.save((err) => callback(err));
 }
 
 module.exports = router;

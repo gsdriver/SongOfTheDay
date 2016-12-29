@@ -32,7 +32,7 @@ var storage = (function () {
     // The UserData class stores information about a registered user
     function UserData(userID, email) {
         // Save values
-        this.userID = (userID) ? userID : "";
+        this.userID = (userID) ? String(userID) : "";
         this.email = (email) ? email : "";
     }
 
@@ -57,16 +57,15 @@ var storage = (function () {
     };
 
     // The SongData class stores information about a given song
-    function SongData(date, title, artist, comments, highVote, lowVote, weblink, votes) {
+    function SongData(date, title, artist, comments, highVote, lowVote, weblink) {
         // Save values
-        this.date = (date && date.S) ? FormatDate(date.S) : FormatDate(Date.UTCNow());
-        this.title = (title && title.S) ? title.S : "";
-        this.artist = (artist && artist.S) ? artist.S : "";
-        this.comments = (comments && comments.S) ? comments.S : "";
-        this.highVote = (highVote && highVote.S) ? highVote.S : "";
-        this.lowVote = (lowVote && lowVote.S) ? lowVote.S : "";
-        this.weblink = (weblink && weblink.S) ? weblink.S : "";
-        this.votes = (votes && votes.S) ? JSON.parse(votes.S) : [];
+        this.date = (date) ? date : FormatDate(new Date(Date.now()));
+        this.title = (title) ? title : "";
+        this.artist = (artist) ? artist : "";
+        this.comments = (comments) ? comments : "";
+        this.highVote = (highVote) ? highVote : "";
+        this.lowVote = (lowVote) ? lowVote : "";
+        this.weblink = (weblink) ? weblink : "";
     }
 
     SongData.prototype = {
@@ -79,8 +78,36 @@ var storage = (function () {
                         comments: {S: this.comments},
                         highVote: {S: this.highVote},
                         lowVote: {S: this.lowVote},
-                        weblink: {S: this.weblink},
-                        votes: {S: JSON.stringify(this.votes)}}
+                        weblink: {S: this.weblink}}
+            }, function(err, data) {
+                // We only need to pass the error back - no other data to return
+                if (err)
+                {
+                    console.log(err, err.stack);
+                }
+                if (callback)
+                {
+                    callback(err);
+                }
+            });
+        }
+    };
+
+    // The VoteData class stores information about votes for a given song
+    function VoteData(date, userID, vote) {
+        // Save values
+        this.date = (date) ? date : FormatDate(new Date(Date.now()));
+        this.userID = (userID) ? String(userID) : "";
+        this.vote = (vote) ? String(vote) : "";
+    }
+
+    VoteData.prototype = {
+        save: function(callback) {
+            dynamodb.putItem({
+                TableName: "SOTDVotes",
+                Item: { date: {S: this.date},
+                        userID: {S: this.userID},
+                        vote: {S: this.vote}}
             }, function(err, data) {
                 // We only need to pass the error back - no other data to return
                 if (err)
@@ -173,12 +200,64 @@ var storage = (function () {
                     var songList = [];
 
                     data.Responses.SOTDSongData.forEach(song => {
-                        var songData = new SongData(song.date, song.title, song.artist, song.comments,
-                                                song.highVote, song.lowVote, song.weblink);
+                        var songData = new SongData(song.date.S, song.title.S, song.artist.S, song.comments.S,
+                                                song.highVote.S, song.lowVote.S, song.weblink.S);
                         songList.push(songData);
                     });
 
                     callback(null, songList);
+                }
+            });
+        },
+        // Load a user's vote
+        loadVoteData : function(userID, date, callback) {
+            dynamodb.getItem({TableName: 'SOTDVotes',
+                              Key: { date: {S: date}, userID: {S: userID}}}, function (error, data) {
+                var voteData;
+
+                if (error || (data.Item == undefined))
+                {
+                    // Sorry, we don't have a vote for this user/date combination
+                    // You need to explicitly create a new one
+                    console.log("Can't find vote for " + userID + " on " + date);
+                    callback("novote", null);
+                }
+                else
+                {
+                    voteData = new VoteData(data.Item.date.S, data.Item.userID.S, data.Item.vote.S);
+                    callback(null, voteData);
+                }
+            });
+        },
+        createVoteData : function(userID, date, vote) {
+            return new VoteData(date, userID, vote);
+        },
+        // Gets all votes for a given song (date)
+        getVotesForDate : function(date, callback) {
+            var params = {};
+
+            params.TableName = "SOTDVotes";
+            params.KeyConditionExpression = "#D = :partitionkeyval";
+            params.ExpressionAttributeValues = {":partitionkeyval": {S: date}};
+            params.ExpressionAttributeNames = {"#D": "date"};
+            dynamodb.query(params, function(error, data) {
+                if (error || (data.Items == undefined))
+                {
+                    // Sorry, we don't have votes for this date
+                    console.log("Error " + error + " data " + JSON.stringify(data));
+                    callback("Can't find votes for " + date, null);
+                }
+                else
+                {
+                    // Process into an array
+                    var votes = [];
+
+                    data.Items.forEach(vote => {
+                        var voteData = new VoteData(vote.date.S, vote.userID.S, vote.vote.S);
+                        votes.push(voteData);
+                    });
+
+                    callback(null, votes);
                 }
             });
         }
