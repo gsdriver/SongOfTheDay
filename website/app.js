@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var Strategy = require('passport-facebook').Strategy;
+var storage = require('./storage');
 
 // Configure the Facebook strategy for use by Passport.
 //
@@ -47,7 +48,6 @@ passport.deserializeUser(function(obj, cb) {
 });
 
 var getresults = require('./routes/getresults');
-var register = require('./routes/register');
 var vote = require('./routes/vote');
 var getsong = require('./routes/getsong');
 
@@ -70,7 +70,6 @@ app.use(passport.session());
 
 app.use('/getsong', getsong);
 app.use('/getresults', getresults);
-app.use('/register', register);
 app.use('/vote', vote);
 
 // Login pages to do OAuth
@@ -80,10 +79,14 @@ app.get('/login/facebook',
 app.get('/login/facebook/return',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
-    // Save the parameters from the Facebook call
-    var url = "/?id=" + req.user._json.id + "&name=" + req.user._json.name + "&email=" + req.user._json.email;
-    res.redirect(url);
-  });
+    // OK, register the user and show them the song
+    var userData = storage.createNewUser(req.user._json.id, req.user._json.email);
+    userData.save(err => {
+        // Great, go back to the main page
+        console.log("Registered user");
+        res.redirect("/");
+    });
+});
 
 app.get('/', function(req, res, next) {
     res.render("index", {title: "Song of the Day", fbAppID: process.env.CLIENT_ID});

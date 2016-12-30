@@ -11,17 +11,7 @@ var utils = require("../Utils");
 router.post('/', function(req, res, next) {
     // Start by loading the song
     var params = { title: "Song of the Day", loginlink: "\\login\\facebook", fbAppID: process.env.CLIENT_ID };
-    var userID;
-
-    // See if we have the ID
-    if (req.body.id)
-    {
-        userID = req.body.id;
-    }
-    else if (req.query.id)
-    {
-        userID = req.query.id;
-    }
+    var userID = req.body.id;
 
     utils.GetSong(true, (err, song) => {
         if (err)
@@ -33,36 +23,23 @@ router.post('/', function(req, res, next) {
             // Save the details of the song, which we'll use when we vote
             params.song = song;
             params.userID = userID;
-            params.email = req.query.email;
             if (userID)
             {
-                // We have an ID - now, are they registered with SOTD?
+                // We have an ID - let them vote (check first if they've already voted)
                 params.loggedIn = true;
-                storage.loadUserData(userID, (err, userData) => {
-                    params.registered = (!err);
-                    if (!err)
+                storage.loadVoteData(userID, song.date, (err, vote) => {
+                    if (vote)
                     {
-                        // They are registered, great.  Oh, did they vote already?
-                        storage.loadVoteData(userID, song.date, (err, vote) => {
-                            if (vote)
-                            {
-                                params.yourVote = vote.vote;
-                            }
+                        params.yourVote = vote.vote;
+                    }
 
-                            res.render("getsong", params);
-                        });
-                    }
-                    else
-                    {
-                        res.render("getsong", params);
-                    }
+                    res.render("getsong", params);
                 });
             }
             else
             {
                 // No Facebook ID, so they have to login first
                 params.loggedIn = false;
-                params.registered = false;
                 res.render("getsong", params);
             }
         }

@@ -7,7 +7,7 @@ block content
   a(href=song.weblink) Listen to it here
   = "\n"
   p
-  if registered
+  if loggedIn
       h2 Place your vote
       if yourVote
         p You already voted - feel free to change your vote
@@ -31,13 +31,5 @@ block content
           | #{song.lowVote}
           p
           input(type="submit", value="Vote")
-  else if loggedIn
-    p You aren't registered with Song of the Day
-    p Please click here to register if you would like to vote
-    div
-      form(action="/register", method="post")
-        input(type="hidden", name="id" value=userID)
-        input(type="hidden", name="email" value=email)
-        input(type="submit", value="Register")
   else
     a(href=loginlink) Click here to login via Facebook if you would like to vote
