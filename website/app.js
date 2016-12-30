@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var passport = require('passport');
 var Strategy = require('passport-facebook').Strategy;
 var storage = require('./storage');
+var config = require('./config');
 
 // Configure the Facebook strategy for use by Passport.
 //
@@ -16,8 +17,8 @@ var storage = require('./storage');
 // with a user object, which will be set at `req.user` in route handlers after
 // authentication.
 passport.use(new Strategy({
-    clientID: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
+    clientID: config.CLIENT_ID,
+    clientSecret: config.CLIENT_SECRET,
     callbackURL: 'http://localhost:3000/login/facebook/return',
     profileFields: ['id', 'displayName', 'email']
   },
@@ -89,7 +90,7 @@ app.get('/login/facebook/return',
 });
 
 app.get('/', function(req, res, next) {
-    res.render("index", {title: "Song of the Day", fbAppID: process.env.CLIENT_ID});
+    res.render("index", {title: "Song of the Day", fbAppID: config.CLIENT_ID});
 });
 
 // catch 404 and forward to error handler

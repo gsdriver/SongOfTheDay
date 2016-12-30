@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var storage = require("../storage");
 var utils = require("../Utils");
+var config = require("../config");
 
 // Starting page - all users get to see the SOTD
 // Flow is as follows:
@@ -10,7 +11,7 @@ var utils = require("../Utils");
 //   If the user is logged in and registered with SOTD, then we display the voting options
 router.post('/', function(req, res, next) {
     // Start by loading the song
-    var params = { title: "Song of the Day", loginlink: "\\login\\facebook", fbAppID: process.env.CLIENT_ID };
+    var params = { title: "Song of the Day", loginlink: "\\login\\facebook", fbAppID: config.CLIENT_ID };
     var userID = req.body.id;
 
     utils.GetSong(true, (err, song) => {
