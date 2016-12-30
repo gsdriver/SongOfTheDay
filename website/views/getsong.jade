@@ -12,7 +12,9 @@ block content
       if yourVote
         p You already voted - feel free to change your vote
       div
-        form(action=voteAction, method="post")
+        form(action="/vote", method="post")
+          input(type="hidden", name="id" value=userID)
+          input(type="hidden", name="date" value=song.date)
           input(type="radio", name="vote", value=5, checked=(yourVote == 5) ? true : false)
           | #{song.highVote}
           p
@@ -33,7 +35,9 @@ block content
     p You aren't registered with Song of the Day
     p Please click here to register if you would like to vote
     div
-      form(action=registerAction, method="post")
+      form(action="/register", method="post")
+        input(type="hidden", name="id" value=userID)
+        input(type="hidden", name="email" value=email)
         input(type="submit", value="Register")
   else
     a(href=loginlink) Click here to login via Facebook if you would like to vote

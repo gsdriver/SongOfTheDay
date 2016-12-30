@@ -5,7 +5,7 @@ var storage = require("../storage");
 // Register a new user
 router.post("*", function(req, res, next) {
     // Let's register
-    var userData = storage.createNewUser(req.query.id, req.query.email);
+    var userData = storage.createNewUser(req.body.id, req.body.email);
     userData.save(err => {
         // Great, go back to the main page
         console.log("Registered user");

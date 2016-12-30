@@ -32,12 +32,12 @@ router.post('/', function(req, res, next) {
         {
             // Save the details of the song, which we'll use when we vote
             params.song = song;
+            params.userID = userID;
+            params.email = req.query.email;
             if (userID)
             {
                 // We have an ID - now, are they registered with SOTD?
                 params.loggedIn = true;
-                params.registerAction = "/register/?id=" + userID + "&email=" + req.query.email;
-                params.voteAction = "/vote/?id=" + userID + "&date=" + song.date;
                 storage.loadUserData(userID, (err, userData) => {
                     params.registered = (!err);
                     if (!err)

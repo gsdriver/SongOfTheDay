@@ -6,7 +6,7 @@ var storage = require("../storage");
 // Save the vote
 router.post('*', function(req, res, next) {
     // Place the vote
-    SaveVote(req.query.id, req.query.date, req.body.vote, (err) => {
+    SaveVote(req.body.id, req.body.date, req.body.vote, (err) => {
         if (err)
         {
             res.render("error");
