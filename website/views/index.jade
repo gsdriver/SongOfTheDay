@@ -1,39 +1,54 @@
 extends layout
 
 block content
+  script().
+    window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '#{fbAppID}',
+          cookie     : true,  // enable cookies to allow the server to access
+                              // the session
+          xfbml      : true,  // parse social plugins on this page
+          version    : 'v2.8' // use graph api version 2.8
+        });
+        FB.getLoginStatus(function(response) {
+            console.log("Got status");
+            if (response.status == "connected")
+            {
+                post('/getsong', {id: response.authResponse.userID});
+            }
+            else
+            {
+                post('/getsong', {id: null});
+            }
+        });
+    };
+    // Load the SDK asynchronously
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+    // Post the response
+    function post(path, params) {
+        var form = document.createElement("form");
+        form.setAttribute("method", "post");
+        form.setAttribute("action", path);
+
+        for(var key in params) {
+            if(params.hasOwnProperty(key)) {
+                var hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", key);
+                hiddenField.setAttribute("value", params[key]);
+
+                form.appendChild(hiddenField);
+             }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+    }
   h1= title
-  p The song for #{song.date} is #{song.title} by #{song.artist}
-  p #{song.comments}
-  a(href=song.weblink) Listen to it here
-  = "\n"
-  p
-  if registered
-      h2 Place your vote
-      if yourVote
-        p You already voted - feel free to change your vote
-      div
-        form(action="/vote", method="post")
-          input(type="radio", name="vote", value=5, checked=(yourVote == 5) ? true : false)
-          | #{song.highVote}
-          p
-          input(type="radio", name="vote", value=4, checked=(yourVote == 4) ? true : false)
-          | Great Song!
-          p
-          input(type="radio", name="vote", value=3, checked=(yourVote == 3) ? true : false)
-          | Decent Song
-          p
-          input(type="radio", name="vote", value=2, checked=(yourVote == 2) ? true : false)
-          | This Sucks
-          p
-          input(type="radio", name="vote", value=1, checked=(yourVote == 1) ? true : false)
-          | #{song.lowVote}
-          p
-          input(type="submit", value="Vote")
-  else if loggedIn
-    p You aren't registered with Song of the Day
-    p Please click here to register if you would like to vote
-    div
-      form(action="/register", method="post")
-        input(type="submit", value="Register")
-  else
-    a(href=loginlink) Click here to login via Facebook if you would like to vote
+  p Loading...

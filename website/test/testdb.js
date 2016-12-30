@@ -11,9 +11,9 @@ var getVoteDate = null; //"2016-12-28";
 
 var createTables = false;
 
-var deleteUsers = false;
+var deleteUsers = true;
 var deleteSongs = false;
-var deleteVotes = false;
+var deleteVotes = true;
 
 var addSongs = false;
 var addVotes = false;

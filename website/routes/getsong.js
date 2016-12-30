@@ -8,9 +8,20 @@ var utils = require("../Utils");
 //   If the user is not logged in to facebook (e.g. I can't get a userID), then prompt them to login
 //   If the user is logged in but not registered with SOTD, then prompt them to register
 //   If the user is logged in and registered with SOTD, then we display the voting options
-router.get('/', function(req, res, next) {
+router.post('/', function(req, res, next) {
     // Start by loading the song
     var params = { title: "Song of the Day", loginlink: "\\login\\facebook", fbAppID: process.env.CLIENT_ID };
+    var userID;
+
+    // See if we have the ID
+    if (req.body.id)
+    {
+        userID = req.body.id;
+    }
+    else if (req.query.id)
+    {
+        userID = req.query.id;
+    }
 
     utils.GetSong(true, (err, song) => {
         if (err)
@@ -21,29 +32,29 @@ router.get('/', function(req, res, next) {
         {
             // Save the details of the song, which we'll use when we vote
             params.song = song;
-            if (req.query.id)
+            if (userID)
             {
                 // We have an ID - now, are they registered with SOTD?
                 params.loggedIn = true;
-                params.registerAction = "/register/?id=" + req.query.id + "&email=" + req.query.email;
-                params.voteAction = "/vote/?id=" + req.query.id + "&date=" + song.date;
-                storage.loadUserData(req.query.id, (err, userData) => {
+                params.registerAction = "/register/?id=" + userID + "&email=" + req.query.email;
+                params.voteAction = "/vote/?id=" + userID + "&date=" + song.date;
+                storage.loadUserData(userID, (err, userData) => {
                     params.registered = (!err);
                     if (!err)
                     {
                         // They are registered, great.  Oh, did they vote already?
-                        storage.loadVoteData(req.query.id, song.date, (err, vote) => {
+                        storage.loadVoteData(userID, song.date, (err, vote) => {
                             if (vote)
                             {
                                 params.yourVote = vote.vote;
                             }
 
-                            res.render("index", params);
+                            res.render("getsong", params);
                         });
                     }
                     else
                     {
-                        res.render("index", params);
+                        res.render("getsong", params);
                     }
                 });
             }
@@ -52,7 +63,7 @@ router.get('/', function(req, res, next) {
                 // No Facebook ID, so they have to login first
                 params.loggedIn = false;
                 params.registered = false;
-                res.render("index", params);
+                res.render("getsong", params);
             }
         }
     });

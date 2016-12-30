@@ -5,15 +5,8 @@ var storage = require("../storage");
 
 // Save the vote
 router.post('*', function(req, res, next) {
-    // First see if they have the fbUser - if not, we need to redirect them to login
-    if (!req.cookies.fbUser)
-    {
-        // This shouldn't happen
-        res.render("error");
-    }
-
     // Place the vote
-    SaveVote(req.cookies.fbUser.id, req.cookies.song.date, req.body.vote, (err) => {
+    SaveVote(req.query.id, req.query.date, req.body.vote, (err) => {
         if (err)
         {
             res.render("error");

@@ -49,7 +49,7 @@ passport.deserializeUser(function(obj, cb) {
 var getresults = require('./routes/getresults');
 var register = require('./routes/register');
 var vote = require('./routes/vote');
-var index = require('./routes/index');
+var getsong = require('./routes/getsong');
 
 var app = express();
 
@@ -68,7 +68,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/', index);
+app.use('/getsong', getsong);
 app.use('/getresults', getresults);
 app.use('/register', register);
 app.use('/vote', vote);
@@ -81,15 +81,13 @@ app.get('/login/facebook/return',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   function(req, res) {
     // Save the parameters from the Facebook call
-    res.cookie("fbUser", {id: req.user._json.id, name: req.user._json.name, email: req.user._json.email });
-    res.redirect('/');
+    var url = "/?id=" + req.user._json.id + "&name=" + req.user._json.name + "&email=" + req.user._json.email;
+    res.redirect(url);
   });
 
-app.get('/profile',
-//  require('connect-ensure-login').ensureLoggedIn(),
-  function(req, res){
-    res.render('profile', { user: req.user });
-  });
+app.get('/', function(req, res, next) {
+    res.render("index", {title: "Song of the Day", fbAppID: process.env.CLIENT_ID});
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
