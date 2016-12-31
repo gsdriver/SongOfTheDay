@@ -58,8 +58,9 @@ module.exports = {
                     }
                 });
 
-                // Return the most recent song
-                callback(null, (current ? mostRecent : secondMostRecent));
+                // Return the most recent or second most recent song
+                var song = (current ? mostRecent : secondMostRecent);
+                callback((song) ? null : {status: "Song not found"}, song);
             }
         });
     }
