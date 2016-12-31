@@ -18,7 +18,7 @@ var config = require('./config');
 // authentication.
 passport.use(new Strategy({
     clientID: config.CLIENT_ID,
-    clientSecret: config.CLIENT_SECRET,
+    clientSecret: config.CLIENT_TOKEN,
     callbackURL: config.FBCallback + '/login/facebook/return',
     profileFields: ['id', 'displayName', 'email']
   },
