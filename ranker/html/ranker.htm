@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<head>
+<style>
+th {
+    background:  lightgray
+}
+</style>
+</head>
+<body>
+
+<!--  The data structure is a tree with a songList and children -->
+
+<!-- This is the main table-->
+<div id="angDiv" ng-app="myApp" ng-controller="myCtrl">
+    <h1>Master List</h1><button ng-click="SaveChanges()">Save Changes</button>
+    <p id="demo">{{myWelcome}}</p>
+<!-- Start with the "master" table that we will sort into -->
+<table border="1px solid black" border-collapse="collapse" style="width:100%">
+  <tr>
+      <th>Title</th>
+      <th>Artist</th>
+  </tr>
+  
+  <!-- Now iterate through all songs and put in the table-->
+  <tr ng-repeat="song in songTree.songList">
+    <td>{{song.title}}</td>
+    <td>{{song.artist}}</td>
+  </tr>
+</table>
+<p></p>
+
+<!-- Now a set of tables for each of the children which will sort into this one -->
+<h1>Children</h1>
+<table width = "100%">
+    <col ng-repeat="child in songTree.children width="100/{{songTree.children.length}}%" />
+    <tr>
+        <td ng-repeat="child in songTree.children">
+        <table id="{{$index}}" border="1px solid black" width = "95%">
+            <col width="20%" />
+            <col width="40%" />
+            <col width="35%" />
+            <tr>
+                <th><button ng-click="UpdateList(child.songList)">Select</button></th>
+                <th>Title</th>
+                <th>Artist</th>
+            </tr>
+            <tr ng-repeat="song in child.songList"  style="background-color:white" onclick="HighlightCell(this)">
+                <td colspan="2">{{song.title}}</td>
+                <td>{{song.artist}}</td>
+            </tr>
+        </table>
+        </td>
+    </tr>
+</table>
+
+<script>
+    // Holds the currently highlighted cell
+    var highlightedCell;
+
+    function HighlightCell(cell) {
+        // Make this row yellow and the previously selected element white
+        if (highlightedCell != null) {
+            highlightedCell.style = "background-color:white";
+        }
+
+        cell.style = "background-color:yellow";
+        highlightedCell = cell;
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        var scope = angular.element("#angDiv").scope();
+
+        // Append the dropped song to the end of this list and remove from the initial list
+        document.getElementById("demo").innerHTML = scope.testValue; //  songTree.songList[0].title; // songTree.children[data].songList[0].title;
+        songTree.songList.push(songTree.children[data].songList[0]);
+        //ev.target.appendChild(document.getElementById(data));
+    }
+
+    function drag(ev) {
+        // Record the songList that we're dragging from - if we drop we'll want to remove from this list
+        // Because we clicked on a table row, the grandparent (main table) will have the ID we want
+        document.getElementById("demo").innerHTML = ev.target.parentElement.parentElement.getAttribute("id");
+        HighlightCell(ev.target);
+        ev.dataTransfer.setData("text", ev.target.parentElement.parentElement.getAttribute("id"));
+    }
+</script>
+
+<script src="js\ranker.js"></script>
+</div>
+</body>
+</html>
