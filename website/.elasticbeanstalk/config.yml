@@ -1,0 +1,15 @@
+branch-defaults:
+  default:
+    environment: sotd-env
+    group_suffix: null
+global:
+  application_name: SongOfTheDay
+  branch: null
+  default_ec2_keyname: null
+  default_platform: node.js
+  default_region: us-west-2
+  profile: eb-cli
+  repository: null
+  sc: null
+deploy:
+  artifact: SongOfTheDay.zip

@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
         utils.GetSong(false, (err, oldsong) => {
             if (err)
             {
-                res.render(err);
+                res.render("error", {error: err});
             }
             else
             {

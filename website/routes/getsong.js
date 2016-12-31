@@ -17,7 +17,7 @@ router.post('/', function(req, res, next) {
     utils.GetSong(true, (err, song) => {
         if (err)
         {
-            res.render("error");
+            res.render("error", {error: err});
         }
         else
         {

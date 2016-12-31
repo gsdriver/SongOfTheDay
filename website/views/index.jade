@@ -11,7 +11,7 @@ block content
           version    : 'v2.8' // use graph api version 2.8
         });
         FB.getLoginStatus(function(response) {
-            console.log("Got status");
+            console.log("Got status " + response.status);
             if (response.status == "connected")
             {
                 post('/getsong', {id: response.authResponse.userID});

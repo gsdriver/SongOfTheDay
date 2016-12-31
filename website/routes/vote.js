@@ -9,7 +9,7 @@ router.post('*', function(req, res, next) {
     SaveVote(req.body.id, req.body.date, req.body.vote, (err) => {
         if (err)
         {
-            res.render("error");
+            res.render("error", {error: err});
         }
         else
         {

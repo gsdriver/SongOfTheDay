@@ -14,6 +14,12 @@ if (config.runDBLocal) {
       endpoint: "http://localhost:8000"
     });
 }
+else
+{
+    AWS.config.update({
+      region: "us-west-2"
+    });
+}
 
 // Format a date as YYYY-MM-DD
 function FormatDate(oldDate)
@@ -157,6 +163,7 @@ var storage = (function () {
                 {
                     // Sorry, we don't have a registered user with this ID
                     // We require you to explicitly create a new one
+                    console.log("I wasn't able to read from SOTDSongData " + error);
                     callback("Can't find song for " + dateValue, null);
                 }
                 else
@@ -191,6 +198,7 @@ var storage = (function () {
                 {
                     // Sorry, we don't have a registered user with this ID
                     // We require you to explicitly create a new one
+                    console.log("batchGetItem failed " + error);
                     callback("Can't find song for " + dateValue, null);
                     console.log(JSON.stringify(data));
                 }

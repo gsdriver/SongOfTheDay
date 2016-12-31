@@ -19,7 +19,7 @@ var config = require('./config');
 passport.use(new Strategy({
     clientID: config.CLIENT_ID,
     clientSecret: config.CLIENT_SECRET,
-    callbackURL: 'http://localhost:3000/login/facebook/return',
+    callbackURL: config.FBCallback + '/login/facebook/return',
     profileFields: ['id', 'displayName', 'email']
   },
   function(accessToken, refreshToken, profile, cb) {
@@ -78,7 +78,7 @@ app.get('/login/facebook',
   passport.authenticate('facebook', { scope: ['email'] }));
 
 app.get('/login/facebook/return',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
+  passport.authenticate('facebook', { failureRedirect: '/' }),
   function(req, res) {
     // OK, register the user and show them the song
     var userData = storage.createNewUser(req.user._json.id, req.user._json.email);
