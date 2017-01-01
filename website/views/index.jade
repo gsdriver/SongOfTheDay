@@ -50,5 +50,13 @@ block content
         document.body.appendChild(form);
         form.submit();
     }
+    // Draw animation dots as we load
+    var dots = window.setInterval( function() {
+        var wait = document.getElementById("wait");
+        if ( wait.innerHTML.length > 12 )
+            wait.innerHTML = "Loading";
+        else
+            wait.innerHTML += ".";
+        }, 100);
   h1= title
-  p Loading...
+  p#wait Loading

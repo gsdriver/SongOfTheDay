@@ -15,7 +15,7 @@ module.exports = {
     GetSong : function (current, callback) {
         // Pull song list from the past 31 days, and find the most recent one in the list
         // Just in case we haven't updated it for a while
-        storage.bulkLoadSongData(Date.now(), 31, (err, songList) =>
+        storage.bulkLoadSongData(GetNowDateString(), 31, (err, songList) =>
         {
             if (err)
             {
@@ -79,7 +79,7 @@ function GetSong(current, callback)
 {
     // Pull song list from the past 31 days, and find the most recent one in the list
     // Just in case we haven't updated it for a while
-    storage.bulkLoadSongData(Date.now(), 31, (err, songList) =>
+    storage.bulkLoadSongData(GetNowDateString(), 31, (err, songList) =>
     {
         if (err)
         {
@@ -126,4 +126,22 @@ function GetSong(current, callback)
             callback(null, (current ? mostRecent : secondMostRecent));
         }
     });
+}
+
+/*
+ * Internal functions
+ */
+
+// Return now (PST) as YYYY-MM-DD
+function GetNowDateString()
+{
+    // Yeah, this will be off an hour at DST, but that's OK
+    // In Pacific, this should "roll over" to the next song at 1:00 AM standard,
+    // or 2:00 AM daylight savings, which works fine in different US timezones
+    var date = new Date(Date.now() - (3600000 * 10));
+    var year = date.getUTCFullYear();
+    var month = date.getUTCMonth() + 1;
+    var day = date.getUTCDate();
+
+    return (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
 }

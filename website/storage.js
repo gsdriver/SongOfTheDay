@@ -21,17 +21,6 @@ else
     });
 }
 
-// Format a date as YYYY-MM-DD
-function FormatDate(oldDate)
-{
-    var date = new Date(oldDate);
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    var day = date.getDate();
-
-    return (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
-}
-
 var storage = (function () {
     var dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
@@ -65,7 +54,7 @@ var storage = (function () {
     // The SongData class stores information about a given song
     function SongData(date, title, artist, comments, highVote, lowVote, weblink) {
         // Save values
-        this.date = (date) ? date : FormatDate(new Date(Date.now()));
+        this.date = (date) ? date : "";
         this.title = (title) ? title : "";
         this.artist = (artist) ? artist : "";
         this.comments = (comments) ? comments : "";
@@ -102,7 +91,7 @@ var storage = (function () {
     // The VoteData class stores information about votes for a given song
     function VoteData(date, userID, vote) {
         // Save values
-        this.date = (date) ? date : FormatDate(new Date(Date.now()));
+        this.date = (date) ? date : "";
         this.userID = (userID) ? String(userID) : "";
         this.vote = (vote) ? String(vote) : "";
     }
@@ -151,44 +140,10 @@ var storage = (function () {
         createNewUser: function(userID, email) {
             return new UserData(userID, email);
         },
-        // Loads a single song data
-        loadSongData: function(date, callback) {
-            var dateValue = FormatDate(date);
-
-            dynamodb.getItem({TableName: 'SOTDSongData',
-                              Key: { date: {S: dateValue}}}, function (error, data) {
-                var songData;
-
-                if (error || (data.Item == undefined))
-                {
-                    // Sorry, we don't have a registered user with this ID
-                    // We require you to explicitly create a new one
-                    console.log("I wasn't able to read from SOTDSongData " + error);
-                    callback("Can't find song for " + dateValue, null);
-                }
-                else
-                {
-                    songData = new SongData(dateValue, data.Item.title.S, data.Item.artist.S, data.Item.comments.S,
-                                            data.Item.highVote.S, data.Item.lowVote.S, data.Item.weblink.S);
-                    callback(null, songData);
-                }
-            });
-        },
         // Does a bulk load of Song Data
-        bulkLoadSongData : function(date, numberOfEntries, callback) {
+        bulkLoadSongData : function(dateValue, numberOfEntries, callback) {
             var params = {};
-            var dateKeys = [];
-            var dateValue = FormatDate(date);
-
-            // Generate the keys
-            var i;
-            var keyDate = new Date(date);
-
-            for (i = 0; i < numberOfEntries; i++)
-            {
-                dateKeys.push({date: {S: FormatDate(keyDate)}});
-                keyDate.setDate(keyDate.getDate() - 1);
-            }
+            var dateKeys = BuildDateKeys(dateValue, numberOfEntries);
 
             params.RequestItems = {};
             params.RequestItems.SOTDSongData = {};
@@ -271,5 +226,27 @@ var storage = (function () {
         }
     };
 })();
+
+// Generates keys
+function BuildDateKeys(date, numberOfEntries)
+{
+    var dateKeys = [];
+    var i;
+    var dateString;
+    var keyDate = new Date(date);
+
+    for (i = 0; i < numberOfEntries; i++)
+    {
+        var year = keyDate.getUTCFullYear();
+        var month = keyDate.getUTCMonth() + 1;
+        var day = keyDate.getUTCDate();
+        dateString = (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
+
+        dateKeys.push({date: {S: dateString}});
+        keyDate.setDate(keyDate.getDate() - 1);
+    }
+
+    return dateKeys;
+}
 
 module.exports = storage;
