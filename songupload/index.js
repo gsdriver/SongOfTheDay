@@ -1,11 +1,10 @@
 "use strict";
 
 var AWS = require("aws-sdk");
-var fs = require("fs");
 
 // Run locally if told to do so
-const runDBLocal = true;
-const fileToProcess = "songs.txt";
+const runDBLocal = false;
+const SOTDBucket = "sotd-songfiles";
 
 if (runDBLocal) {
     AWS.config.update({
@@ -68,9 +67,8 @@ function AddSongs(songlist, callback)
 //    date, title, artist, comments, highVote, lowVote, weblink
 // Date should be of the format MM-DD-YYYY
 // Date, title, and artist are required - other fields are optional
-function ReadSongsFromFile(filename)
+function ReadSongsFromFile(data)
 {
-    var data = fs.readFileSync(filename, "UTF-8");
     var lines = data.split("\n");
     var songlist = [];
 
@@ -98,7 +96,7 @@ function ReadSongsFromFile(filename)
             {
                 song.lowVote = fields[5];
             }
-            if (fields[6].weblink)
+            if (fields[6].length)
             {
                 song.weblink = fields[6];
             }
@@ -114,22 +112,78 @@ function ReadSongsFromFile(filename)
     return ((songlist.length > 0) ? songlist : null);
 }
 
+function BuildParams(event)
+{
+    var bucketName;
+    var key;
+
+    // Let's verify that this is a put event for our bucket
+    if (event.Records && (event.Records.length > 0))
+    {
+        if (event.Records[0].eventName == "ObjectCreated:Put")
+        {
+            if (event.Records[0].s3 && event.Records[0].s3.bucket)
+            {
+                if (event.Records[0].s3.bucket.name == SOTDBucket)
+                {
+                    bucketName = SOTDBucket;
+                }
+            }
+            if (event.Records[0].s3 && event.Records[0].s3.object)
+            {
+                key = event.Records[0].s3.object.key;
+            }
+        }
+    }
+
+    if (key && bucketName)
+    {
+        return {Bucket: bucketName, Key: key};
+    }
+    else
+    {
+        return null;
+    }
+}
+
 // Exported function
 exports.handler = function (event, context)
 {
     var songlist;
+    var s3 = new AWS.S3();
+    var params = BuildParams(event);
 
-    songlist = ReadSongsFromFile(fileToProcess);
-    if (songlist)
+    console.log(JSON.stringify(params));
+
+    if (!params)
     {
-        AddSongs(songlist, () => {
-            console.log("Done processing songs!");
-            context.done("Done processing songs!");
-        });
+        console.log("Invalid input " + JSON.stringify(event));
+        context.fail("Invalid input parameters - check trigger settings");
     }
     else
     {
-        console.log("Error processing songlist; no songs found");
-        context.done("No songs found");
+        s3.getObject(params, function(err, data) {
+            if (err)
+            {
+                console.log("error " + err);
+                context.fail(err);
+            }
+            else
+            {
+                songlist = ReadSongsFromFile(data.Body.toString());
+                if (songlist)
+                {
+                    AddSongs(songlist, () => {
+                        console.log("Done processing songs!");
+                        context.succeed("Done processing songs!");
+                    });
+                }
+                else
+                {
+                    console.log("Error processing songlist; no songs found");
+                    context.fail("No songs found");
+                }
+            }
+        });
     }
 };
