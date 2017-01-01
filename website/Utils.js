@@ -55,6 +55,11 @@ module.exports = {
                                 secondMostRecent = song;
                             }
                         }
+                        else
+                        {
+                            // Second most recent by definition
+                            secondMostRecent = song;
+                        }
                     }
                 });
 
