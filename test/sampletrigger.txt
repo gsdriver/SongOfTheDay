@@ -1,0 +1,38 @@
+{
+    "Records": [
+        {
+            "eventVersion": "2.0",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-west-2",
+            "eventTime": "2016-12-31T20:04:48.133Z",
+            "eventName": "ObjectCreated:Put",
+            "userIdentity": {
+                "principalId": "A233O5PIM732F2"
+            },
+            "requestParameters": {
+                "sourceIPAddress": "76.22.56.62"
+            },
+            "responseElements": {
+                "x-amz-request-id": "A2B17A96384822AF",
+                "x-amz-id-2": "F6Njhgfk+0z6TZALtSKyu2z/BEfOLjlDR1lJ8v20tSSCMpYmZYhrE+zltfPzsxGy"
+            },
+            "s3": {
+                "s3SchemaVersion": "1.0",
+                "configurationId": "944c9652-97be-41a3-9d57-3e7b6b109acd",
+                "bucket": {
+                    "name": "sotd-songfiles",
+                    "ownerIdentity": {
+                        "principalId": "A233O5PIM732F2"
+                    },
+                    "arn": "arn:aws:s3:::sotd-songfiles"
+                },
+                "object": {
+                    "key": "song2.txt",
+                    "size": 541,
+                    "eTag": "e7ab223869c5abb7fc83cf1879464d3b",
+                    "sequencer": "0058680F60122FEB71"
+                }
+            }
+        }
+    ]
+}

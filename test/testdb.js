@@ -1,6 +1,6 @@
 "use strict";
 
-var storage = require("../storage");
+var storage = require("../website/storage");
 var AWS = require("aws-sdk");
 
 // So what do you want to test?
@@ -11,9 +11,9 @@ var getVoteDate = null; //"2016-12-28";
 
 var createTables = false;
 
-var deleteUsers = true;
+var deleteUsers = false;
 var deleteSongs = false;
-var deleteVotes = true;
+var deleteVotes = false;
 
 var addSongs = false;
 var addVotes = false;
