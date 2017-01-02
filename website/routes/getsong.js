@@ -28,10 +28,10 @@ router.post('/', function(req, res, next) {
             {
                 // We have an ID - let them vote (check first if they've already voted)
                 params.loggedIn = true;
-                storage.loadVoteData(userID, song.date, (err, vote) => {
+                storage.GetVote(userID, song.date, (err, vote) => {
                     if (vote)
                     {
-                        params.yourVote = vote.vote;
+                        params.yourVote = vote;
                     }
 
                     res.render("getsong", params);

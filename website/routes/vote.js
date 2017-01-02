@@ -6,7 +6,7 @@ var storage = require("../storage");
 // Save the vote
 router.post('*', function(req, res, next) {
     // Place the vote
-    SaveVote(req.body.id, req.body.date, req.body.vote, (err) => {
+    storage.SaveVote(req.body.id, req.body.date, req.body.vote, (err) => {
         if (err)
         {
             res.render("error", {error: err});
@@ -18,11 +18,5 @@ router.post('*', function(req, res, next) {
         }
     });
 });
-
-function SaveVote(id, songDate, vote, callback)
-{
-    var voteData = storage.createVoteData(id, songDate, vote);
-    voteData.save((err) => callback(err));
-}
 
 module.exports = router;

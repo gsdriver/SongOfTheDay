@@ -16,7 +16,7 @@ router.get('/', function(req, res, next) {
                 // Process the votes (get an average), and return everything
                 var voteTotal = 0;
 
-                storage.getVotesForDate(oldsong.date, (err, votes) => {
+                storage.GetVotesForDate(oldsong.date, (err, votes) => {
                     if (votes && votes.length)
                     {
                         votes.forEach(vote => (voteTotal += parseInt(vote.vote)));

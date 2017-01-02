@@ -15,7 +15,7 @@ module.exports = {
     GetSong : function (current, callback) {
         // Pull song list from the past 31 days, and find the most recent one in the list
         // Just in case we haven't updated it for a while
-        storage.bulkLoadSongData(GetNowDateString(), 31, (err, songList) =>
+        storage.BulkLoadSongData(GetNowDateString(), 31, (err, songList) =>
         {
             if (err)
             {
@@ -79,7 +79,7 @@ function GetSong(current, callback)
 {
     // Pull song list from the past 31 days, and find the most recent one in the list
     // Just in case we haven't updated it for a while
-    storage.bulkLoadSongData(GetNowDateString(), 31, (err, songList) =>
+    storage.BulkLoadSongData(GetNowDateString(), 31, (err, songList) =>
     {
         if (err)
         {

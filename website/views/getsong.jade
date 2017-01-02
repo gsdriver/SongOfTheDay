@@ -16,18 +16,23 @@ block content
           input(type="hidden", name="id" value=userID)
           input(type="hidden", name="date" value=song.date)
           input(type="radio", name="vote", value=5, checked=(yourVote == 5) ? true : false)
+          strong 5 -
           | #{song.highVote}
           p
           input(type="radio", name="vote", value=4, checked=(yourVote == 4) ? true : false)
+          strong 4 -
           | Great Song!
           p
           input(type="radio", name="vote", value=3, checked=(yourVote == 3) ? true : false)
+          strong 3 -
           | Decent Song
           p
           input(type="radio", name="vote", value=2, checked=(yourVote == 2) ? true : false)
+          strong 2 -
           | This Sucks
           p
           input(type="radio", name="vote", value=1, checked=(yourVote == 1) ? true : false)
+          strong 1 -
           | #{song.lowVote}
           p
           input(type="submit", value="Vote")
