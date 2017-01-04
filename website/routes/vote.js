@@ -5,16 +5,27 @@ var storage = require("../storage");
 
 // Save the vote
 router.post('*', function(req, res, next) {
-    // Place the vote
-    storage.SaveVote(req.body.id, req.body.date, req.body.vote, (err) => {
-        if (err)
+    // First get the current song and make sure that the date matches
+    utils.GetSong(true, (err, song) => {
+        if ((err) || (song.date != req.body.date))
         {
-            res.render("error", {error: err});
+            // You are trying to vote for a different song than the current one
+            res.redirect("/getresults/?closed=true");
         }
         else
         {
-            // Let them know the results of yesterday's song
-            res.redirect("/getresults");
+            // Place the vote
+            storage.SaveVote(req.body.id, req.body.date, req.body.vote, (err) => {
+                if (err)
+                {
+                    res.render("error", {error: err});
+                }
+                else
+                {
+                    // Let them know the results of yesterday's song
+                    res.redirect("/getresults");
+                }
+            });
         }
     });
 });

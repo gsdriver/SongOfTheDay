@@ -65,7 +65,7 @@ function AddSongs(songlist, callback)
 
 // Format is tab-delimited file with fields in the following order:
 //    date, title, artist, comments, highVote, lowVote, weblink
-// Date should be of the format MM-DD-YYYY
+// Date should be of the format YYYY-MM-DD
 // Date, title, and artist are required - other fields are optional
 function ReadSongsFromFile(data)
 {

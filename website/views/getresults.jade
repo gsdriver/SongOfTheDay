@@ -2,7 +2,10 @@ extends layout
 
 block content
   h1= title
-  p Thanks for voting - check back tomorrow to see the results
+  if closed
+    p Sorry - voting has already closed for this song
+  else
+    p Thanks for voting - check back tomorrow to see the results
   p
   p The song for #{song.date} is #{song.title} by #{song.artist}
   p #{song.comments}

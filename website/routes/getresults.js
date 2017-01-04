@@ -5,6 +5,15 @@ var storage = require("../storage");
 
 // Get results from SOTD
 router.get('/', function(req, res, next) {
+    var params = {title: "Song of the Day"};
+
+    if (req.query.closed)
+    {
+        // This means the user tried to vote on a song that's already closed
+        // We'll want to message that to them
+        params.closed = true;
+    }
+
     utils.GetSong(true, (err, song) => {
         utils.GetSong(false, (err, oldsong) => {
             if (err)
@@ -27,7 +36,9 @@ router.get('/', function(req, res, next) {
                         oldsong.result = "No results";
                     }
 
-                    res.render("getresults", {title: "Song of the Day", oldsong: oldsong, song: song});
+                    params.oldsong = oldsong;
+                    params.song = song;
+                    res.render("getresults", params);
                 });
             }
         });
