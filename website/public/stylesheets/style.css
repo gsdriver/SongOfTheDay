@@ -6,3 +6,16 @@ body {
 a {
   color: #00B7FF;
 }
+
+#comment-box .text {
+  height: 400px
+}
+
+.body .message {
+  min-height: 30px;
+  border-radius: 3px;
+  font-family: Arial;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #797979;
+}

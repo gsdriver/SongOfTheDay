@@ -5,7 +5,7 @@ var storage = require("../storage");
 
 // Get results from SOTD
 router.get('/', function(req, res, next) {
-    var params = {title: "Song of the Day"};
+    var params = {title: "Song of the Day", id: req.query.id};
 
     if (req.query.closed)
     {
@@ -22,23 +22,33 @@ router.get('/', function(req, res, next) {
             }
             else
             {
-                // Process the votes (get an average), and return everything
-                var voteTotal = 0;
-
-                storage.GetVotesForDate(oldsong.date, (err, votes) => {
-                    if (votes && votes.length)
+                // We also need to grab any comments
+                storage.GetCommentsForDate(song.date, (err, comments) => {
+                    // Only pass comments to the form if there are comments
+                    if (comments && (comments.length > 0))
                     {
-                        votes.forEach(vote => (voteTotal += parseInt(vote.vote)));
-                        oldsong.result = String(voteTotal / votes.length);
-                    }
-                    else
-                    {
-                        oldsong.result = "No results";
+                    console.log(JSON.stringify(comments));
+                        params.comments = comments;
                     }
 
-                    params.oldsong = oldsong;
-                    params.song = song;
-                    res.render("getresults", params);
+                    // Process the votes (get an average), and return everything
+                    var voteTotal = 0;
+
+                    storage.GetVotesForDate(oldsong.date, (err, votes) => {
+                        if (votes && votes.length)
+                        {
+                            votes.forEach(vote => (voteTotal += parseInt(vote.vote)));
+                            oldsong.result = String(voteTotal / votes.length);
+                        }
+                        else
+                        {
+                            oldsong.result = "No results";
+                        }
+
+                        params.oldsong = oldsong;
+                        params.song = song;
+                        res.render("getresults", params);
+                    });
                 });
             }
         });

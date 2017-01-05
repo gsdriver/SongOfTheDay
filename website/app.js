@@ -51,6 +51,7 @@ passport.deserializeUser(function(obj, cb) {
 var getresults = require('./routes/getresults');
 var vote = require('./routes/vote');
 var getsong = require('./routes/getsong');
+var comment = require('./routes/comment');
 
 var app = express();
 
@@ -72,6 +73,7 @@ app.use(passport.session());
 app.use('/getsong', getsong);
 app.use('/getresults', getresults);
 app.use('/vote', vote);
+app.use('/comment', comment);
 
 // Login pages to do OAuth
 app.get('/login/facebook',

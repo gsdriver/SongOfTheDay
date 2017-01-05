@@ -11,10 +11,27 @@ block content
   p #{song.comments}
   a(href=song.weblink) Listen to it here
   = "\n"
+  h2 Leave your comments here
+  div#comment-box
+    form(action="/comment" method="post")
+      input(type="hidden" name="date" value=song.date)
+      input(type="hidden" name="id" value=id)
+      input(type="text" size=80 name="comment")
+      p
+      input(type="submit", value="Leave Comments")
+    = "\n"
+  h2 Previous comments
+  if comments
+    div(class="body")
+      each comment in comments
+        p #{comment.name}
+        div(class="message")
+          p #{comment.comment}
+  else
+    p No comments left yet
   h2 Results from yesterday
   p
   p The song for #{oldsong.date} was #{oldsong.title} by #{oldsong.artist}
   p The popular vote was #{oldsong.result}
   p #{oldsong.comments}
   a(href=oldsong.weblink) Listen to it here
-
