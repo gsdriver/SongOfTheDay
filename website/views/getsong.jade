@@ -45,7 +45,7 @@ block content
               div#comment-box
                 form(action="/comment" method="post")
                   input(type="hidden" name="date" value=song.date)
-                  input(type="hidden" name="id" value=id)
+                  input(type="hidden" name="id" value=userID)
                   textarea(rows="4" cols="40" name="comment")
                   p
                   input(type="submit", value="Leave Comments")
