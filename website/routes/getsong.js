@@ -32,9 +32,21 @@ router.post('/', function(req, res, next) {
                     if (vote)
                     {
                         params.yourVote = vote;
-                    }
 
-                    res.render("getsong", params);
+                        // Since they already voted, we should show them comments too
+                        storage.GetCommentsForDate(song.date, (err, comments) => {
+                            if (comments && (comments.length > 0))
+                            {
+                                params.comments = comments;
+                            }
+                            res.render("getsong", params);
+                        });
+                    }
+                    else
+                    {
+                        // Just show the song
+                        res.render("getsong", params);
+                    }
                 });
             }
             else

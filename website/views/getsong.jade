@@ -36,5 +36,24 @@ block content
           | #{song.lowVote}
           p
           input(type="submit", value="Vote")
+      if yourVote
+        h2 Leave your comments here
+        div#comment-box
+          form(action="/comment" method="post")
+            input(type="hidden" name="date" value=song.date)
+            input(type="hidden" name="id" value=userID)
+            input(type="text" size=80 name="comment")
+            p
+            input(type="submit", value="Leave Comments")
+          = "\n"
+        h2 Previous comments
+        if comments
+          div(class="body")
+            each comment in comments
+              p #{comment.name}
+              div(class="message")
+                p #{comment.comment}
+        else
+          p No comments left yet
   else
     a(href=loginlink) Click here to login via Facebook if you would like to vote
