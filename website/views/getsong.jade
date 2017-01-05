@@ -4,7 +4,7 @@ block content
   h1= title
   p The song for #{song.date} is #{song.title} by #{song.artist}
   p #{song.comments}
-  a(href=song.weblink) Listen to it here
+  a(href=song.weblink target="_blank") Listen to it here
   = "\n"
   p
   if loggedIn
