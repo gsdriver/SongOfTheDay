@@ -5,19 +5,23 @@ var AWS = require("aws-sdk");
 
 // So what do you want to test?
 var printUsers = true;
-var printSongs = true;
-var printVotes = true;
+var printSongs = false;
+var printVotes = false;
+var printComments = false;
 var getVoteDate = null; //"2016-12-28";
+var getCommentsDate = null; //"2016-12-28";
 
 var createTables = false;
 
 var deleteUsers = false;
 var deleteSongs = false;
 var deleteVotes = false;
+var deleteComments = false;
 
-var addSongs = false;
+var addSongs = true;
 var addVotes = false;
-
+var addComments = false;
+var addUsers = false;
 
 function GetAllUsers(callback)
 {
@@ -61,6 +65,23 @@ function GetAllVotes(callback)
 {
     var dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
     dynamodb.scan({TableName: 'SOTDVotes'}, function (error, data) {
+        var userData;
+
+        if (error || (data.Items == undefined))
+        {
+            callback(error, null);
+        }
+        else
+        {
+            callback(null, data.Items);
+        }
+    });
+}
+
+function GetAllComments(callback)
+{
+    var dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+    dynamodb.scan({TableName: 'SOTDComments'}, function (error, data) {
         var userData;
 
         if (error || (data.Items == undefined))
@@ -136,11 +157,34 @@ function createVotes(callback)
     dynamodb.createTable(params, callback);
 }
 
+function createComments(callback)
+{
+    var dynamodb = new AWS.DynamoDB();
+    var params = {
+            TableName : "SOTDComments",
+            KeySchema: [
+            { AttributeName: "date", KeyType: "HASH"},
+            { AttributeName: "timeStamp", KeyType: "RANGE"}
+        ],
+        AttributeDefinitions: [
+            { AttributeName: "date", AttributeType: "S" },
+            { AttributeName: "timeStamp", AttributeType: "S" }
+        ],
+        ProvisionedThroughput: {
+            ReadCapacityUnits: 5,
+            WriteCapacityUnits: 5
+       }
+    };
+
+    dynamodb.createTable(params, callback);
+}
+
 function CreateTables()
 {
     createUserData((err) => console.log("Create UserData " + err));
     createSongData((err) => console.log("Create SongData " + err));
     createVotes((err) => console.log("Create Votes " + err));
+    createComments((err) => console.log("Create comments " + err));
 }
 
 // Printing
@@ -149,7 +193,7 @@ if (printUsers)
     GetAllUsers((err, users) => {
         if (users)
         {
-            users.forEach(user => console.log(user.userID.S));
+            users.forEach(user => console.log(JSON.stringify(user)));
         }
     });
 }
@@ -174,12 +218,32 @@ if (printVotes)
     });
 }
 
+if (printComments)
+{
+    GetAllComments((err, comments) => {
+        if (comments)
+        {
+            comments.forEach(comment => console.log(JSON.stringify(comment)));
+        }
+    });
+}
+
 if (getVoteDate)
 {
     storage.getVotesForDate(getVoteDate, (err, votes) => {
         if (votes)
         {
             votes.forEach(vote => console.log(JSON.stringify(vote)));
+        }
+    });
+}
+
+if (getCommentsDate)
+{
+    storage.GetCommentsForDate(getCommentsDate, (err, comments) => {
+        if (comments)
+        {
+            comments.forEach(comment => console.log(JSON.stringify(comment)));
         }
     });
 }
@@ -236,6 +300,23 @@ if (deleteVotes)
                 dynamodb.deleteItem({TableName: 'SOTDVotes',
                                           Key: { date: {S: vote.date.S}, userID: {S: vote.userID.S}}}, function (error, data) {
                       console.log("Deleted " + vote.userID.S + " on " + vote.date.S);
+                });
+            });
+        }
+    });
+}
+
+if (deleteComments)
+{
+    var dynamodb = new AWS.DynamoDB();
+
+    GetAllComments((err, comments) => {
+        if (comments)
+        {
+            comments.forEach(comment => {
+                dynamodb.deleteItem({TableName: 'SOTDComments',
+                                          Key: { date: {S: comment.date.S}, timeStamp: {S: comment.timeStamp.S}}}, function (error, data) {
+                      console.log("Deleted " + comment.timeStamp.S + " on " + comment.date.S);
                 });
             });
         }
@@ -299,4 +380,16 @@ if (addVotes)
     voteData.save();
     voteData = storage.createVoteData(1, "2016-12-25", 4);
     voteData.save();
+}
+
+if (addComments)
+{
+    storage.AddCommentFromUser("2016-12-28", "1", "Suck it I wasn't talking to you",
+        err => console.log("Added song with " + err));
+}
+
+if (addUsers)
+{
+    storage.RegisterUser("1", "Garrett", "foo@test.com", err => console.log("Added user " + err));
+    storage.RegisterUser("2", "Ryan", "foo2@test.com", err => console.log("Added user " + err));
 }

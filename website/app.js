@@ -81,7 +81,7 @@ app.get('/login/facebook/return',
   passport.authenticate('facebook', { failureRedirect: '/' }),
   function(req, res) {
     // OK, register the user and show them the song
-    storage.RegisterUser(req.user._json.id, req.user._json.email, err => {
+    storage.RegisterUser(req.user._json.id, req.user._json.name, req.user._json.email, err => {
         // Great, go back to the main page
         console.log("Registered user");
         res.redirect("/");

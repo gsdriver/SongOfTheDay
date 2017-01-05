@@ -86,8 +86,9 @@ module.exports = {
         });
     },
     // Registers a new user in our User DB
-    RegisterUser: function(userID, email, callback) {
-        dynamodb.putItem({ TableName: 'SOTDUserData', Item: { userID: {S: userID}, email: {S: email}}}, (err, data) =>
+    RegisterUser: function(userID, name, email, callback) {
+        dynamodb.putItem({ TableName: 'SOTDUserData', Item: { userID: {S: userID},
+                                name: {S: (name) ? name : ""}, email: {S: email}}}, (err, data) =>
         {
             // We only need to pass the error back - no other data to return
             if (callback)
@@ -96,6 +97,7 @@ module.exports = {
             }
         });
     },
+    // Saves a vote for a user
     SaveVote : function(userID, date, vote, callback) {
         dynamodb.putItem({ TableName: 'SOTDVotes', Item: { userID: {S: userID}, date: {S: date}, vote: {S: vote}}}, (err, data) =>
         {
@@ -153,6 +155,66 @@ module.exports = {
                 callback(null, votes);
             }
         });
+    },
+    // Adds a comment for from a user
+    AddCommentFromUser : function(date, userID, comment, callback)
+    {
+        // Add this to the table
+        dynamodb.putItem({ TableName: 'SOTDComments', Item: { date: {S: date},
+                                timeStamp: {S: Date.now().toString() },
+                                userID: {S: userID}, comment: {S: comment}}}, (err, data) =>
+        {
+            // We only need to pass the error back - no other data to return
+            if (callback)
+            {
+                callback(err);
+            }
+        });
+    },
+    // Returns all comments for a given song (from oldest to newest)
+    GetCommentsForDate : function(date, callback)
+    {
+        var params = {};
+
+        params.TableName = "SOTDComments";
+        params.KeyConditionExpression = "#D = :partitionkeyval";
+        params.ExpressionAttributeValues = {":partitionkeyval": {S: date}};
+        params.ExpressionAttributeNames = {"#D": "date"};
+        dynamodb.query(params, function(error, data) {
+            if (error || (data.Items == undefined))
+            {
+                // Sorry, we don't have votes for this date
+                console.log("Error " + error + " data " + JSON.stringify(data));
+                callback("Can't find comments for " + date, null);
+            }
+            else
+            {
+                // Process into an array
+                var comments = [];
+                var userIDs = [];
+
+                data.Items.forEach(comment => {
+                    var commentData = {timeStamp: new Date(parseInt(comment.timeStamp.S)), userID: comment.userID.S, comment: comment.comment.S};
+                    comments.push(commentData);
+
+                    // Also store the user ID (so we can get their name from the user table)
+                    if (userIDs.indexOf(comment.userID.S) < 0)
+                    {
+                        userIDs.push(comment.userID.S);
+                    }
+                });
+
+                GetUserNames(userIDs, (err, users) => {
+                    comments.forEach(comment => {
+                        comment.name = (err) ? "Unknown" : users[comment.userID];
+                    });
+
+                    // Sort by timestamp and return
+                    comments.sort((a,b) => (a.timeStamp - b.timeStamp));
+                    callback(null, comments);
+                });
+            }
+        });
     }
 };
 
@@ -178,4 +240,51 @@ function BuildDateKeys(date, numberOfEntries)
     return dateKeys;
 }
 
+// Get a list of user names from IDs
+function GetUserNames(userIDs, callback)
+{
+    var params = {};
+    var userKeys = [];
+    var users = {};
+
+    // If there are no userIDs, just return
+    if (userIDs.length == 0)
+    {
+        callback(null, users);
+        return;
+    }
+
+    userIDs.forEach(userID => userKeys.push({userID: {S: userID}}));
+    params.RequestItems = {};
+    params.RequestItems.SOTDUserData = {};
+    params.RequestItems.SOTDUserData.Keys = userKeys;
+    dynamodb.batchGetItem(params, function(error, data) {
+        if (error || (data.Responses == undefined))
+        {
+            // Sorry, we weren't able to load these users
+            console.log("batchGetItem failed " + error);
+            callback("Couldn't load users", null);
+        }
+        else
+        {
+            // Process into an array
+            data.Responses.SOTDUserData.forEach(userData => {
+                var name;
+
+                if (userData.name && userData.name.S && (userData.name.S.length > 0))
+                {
+                    name = userData.name.S;
+                }
+                else
+                {
+                    name = "Unknown";
+                }
+
+                users[userData.userID.S] = name;
+            });
+
+            callback(null, users);
+        }
+    });
+}
 
