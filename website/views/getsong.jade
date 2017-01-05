@@ -2,6 +2,7 @@ extends layout
 
 block content
   h1= title
+  hr
   p The song for #{song.date} is #{song.title} by #{song.artist}
   p #{song.comments}
   a(href=song.weblink target="_blank") Listen to it here
@@ -9,6 +10,7 @@ block content
   p
   if loggedIn
       h2 Place your vote
+      hr
       if yourVote
         p You already voted - feel free to change your vote
       div
@@ -17,43 +19,46 @@ block content
           input(type="hidden", name="date" value=song.date)
           input(type="radio", name="vote", value=5, checked=(yourVote == 5) ? true : false)
           strong 5 -
-          | #{song.highVote}
+          |  #{song.highVote}
           p
           input(type="radio", name="vote", value=4, checked=(yourVote == 4) ? true : false)
           strong 4 -
-          | Great Song!
+          |  Great Song!
           p
           input(type="radio", name="vote", value=3, checked=(yourVote == 3) ? true : false)
           strong 3 -
-          | Decent Song
+          |  Decent Song
           p
           input(type="radio", name="vote", value=2, checked=(yourVote == 2) ? true : false)
           strong 2 -
-          | This Sucks
+          |  This Sucks
           p
           input(type="radio", name="vote", value=1, checked=(yourVote == 1) ? true : false)
           strong 1 -
-          | #{song.lowVote}
+          |  #{song.lowVote}
           p
           input(type="submit", value="Vote")
       if yourVote
-        h2 Leave your comments here
-        div#comment-box
-          form(action="/comment" method="post")
-            input(type="hidden" name="date" value=song.date)
-            input(type="hidden" name="id" value=userID)
-            input(type="text" size=80 name="comment")
-            p
-            input(type="submit", value="Leave Comments")
-          = "\n"
-        h2 Previous comments
-        if comments
-          div(class="body")
-            each comment in comments
-              p #{comment.name}
-              div(class="message")
-                p #{comment.comment}
-        else
-          p No comments left yet
+          div#comments
+              h2 Leave your comments here
+              hr
+              div#comment-box
+                form(action="/comment" method="post")
+                  input(type="hidden" name="date" value=song.date)
+                  input(type="hidden" name="id" value=id)
+                  textarea(rows="4" cols="40" name="comment")
+                  p
+                  input(type="submit", value="Leave Comments")
+                = "\n"
+              h2 Previous comments
+              hr
+              if comments
+                div(class="body")
+                  each comment in comments
+                    p #{comment.name}
+                    div(class="message")
+                      p #{comment.comment}
+              else
+                p No comments left yet
   else
     a(href=loginlink) Click here to login via Facebook if you would like to vote
