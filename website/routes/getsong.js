@@ -11,7 +11,7 @@ var config = require("../config");
 //   If the user is logged in and registered with SOTD, then we display the voting options
 router.post('/', function(req, res, next) {
     // Start by loading the song
-    var params = { title: "Song of the Day", loginlink: "\\login\\facebook", fbAppID: config.CLIENT_ID };
+    var params = { title: "Song of the Day", loginlink: "\\login\\facebook" };
     var userID = req.body.id;
 
     utils.GetSong(true, (err, song) => {

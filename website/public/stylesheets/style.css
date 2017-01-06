@@ -8,6 +8,22 @@ a {
   color: #00B7FF;
 }
 
+a.sotd-home {
+	font-size: 28px;
+	color: #000;
+	font-weight: 700;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
+h1 {
+	font-size: 28px;
+	color: #000;
+	font-weight: 700;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
 hr {
 	height: 2px;
 	width: 100%;
