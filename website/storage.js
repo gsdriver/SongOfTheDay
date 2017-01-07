@@ -46,39 +46,35 @@ module.exports = {
                 // Process into an array
                 var songList = [];
 
-                data.Responses.SOTDSongData.forEach(song => {
-                    var songData = {};
+                data.Responses.SOTDSongData.forEach(songData => songList.push(SongFromData(songData)));
+                callback(null, songList);
+            }
+        });
+    },
+    // Reads in all songs from the table
+    ReadAllSongsBefore: function(date, callback) {
+        dynamodb.scan({TableName: 'SOTDSongData'}, function (error, data) {
+            if (error || (data.Items == undefined))
+            {
+                // Sorry, we don't have a registered user with this ID
+                // We require you to explicitly create a new one
+                callback(error, null);
+            }
+            else
+            {
+                var songList = [];
 
-                    if (song.date && song.date.S)
-                    {
-                        songData.date = song.date.S;
-                    }
-                    if (song.title && song.title.S)
-                    {
-                        songData.title = song.title.S;
-                    }
-                    if (song.artist && song.artist.S)
-                    {
-                        songData.artist = song.artist.S;
-                    }
-                    if (song.comments && song.comments.S)
-                    {
-                        songData.comments = song.comments.S;
-                    }
-                    if (song.highVote && song.highVote.S)
-                    {
-                        songData.highVote = song.highVote.S;
-                    }
-                    if (song.lowVote && song.lowVote.S)
-                    {
-                        songData.lowVote = song.lowVote.S;
-                    }
-                    if (song.weblink && song.weblink.S)
-                    {
-                        songData.weblink = song.weblink.S;
-                    }
+                // Check against current date
+                var currentDate = new Date(date);
 
-                    songList.push(songData);
+                data.Items.forEach(songData => {
+                    let song = SongFromData(songData);
+                    let songDate = new Date(song.date);
+
+                    if (songDate < currentDate)
+                    {
+                        songList.push(song);
+                    }
                 });
 
                 callback(null, songList);
@@ -288,3 +284,42 @@ function GetUserNames(userIDs, callback)
     });
 }
 
+function SongFromData(songData)
+{
+    var song = {};
+
+    if (songData.date && songData.date.S)
+    {
+        song.date = songData.date.S;
+    }
+    if (songData.title && songData.title.S)
+    {
+        song.title = songData.title.S;
+    }
+    if (songData.artist && songData.artist.S)
+    {
+        song.artist = songData.artist.S;
+    }
+    if (songData.comments && songData.comments.S)
+    {
+        song.comments = songData.comments.S;
+    }
+    if (songData.highVote && songData.highVote.S)
+    {
+        song.highVote = songData.highVote.S;
+    }
+    if (songData.lowVote && songData.lowVote.S)
+    {
+        song.lowVote = songData.lowVote.S;
+    }
+    if (songData.weblink && songData.weblink.S)
+    {
+        song.weblink = songData.weblink.S;
+    }
+    if (songData.ranking && songData.ranking.N)
+    {
+        song.ranking = parseInt(songData.ranking.N);
+    }
+
+    return song;
+}

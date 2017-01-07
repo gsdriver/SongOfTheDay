@@ -9,7 +9,8 @@ block content
   else
     p Thanks for voting - check back tomorrow to see the results
   p
-  p The song for #{song.date} is #{song.title} by #{song.artist}
+  p The song for #{song.date} is
+  p(class="song") #{song.ranking}) #{song.title} by #{song.artist}
   p #{song.comments}
   a(href=song.weblink) Listen to it here
   = "\n"
@@ -36,7 +37,17 @@ block content
         p No comments left yet
   h2 Results from yesterday
   hr
-  p The song for #{oldsong.date} was #{oldsong.title} by #{oldsong.artist}
+  p The song for #{oldsong.date} was
+  p(class="song") #{oldsong.ranking}) #{oldsong.title} by #{oldsong.artist}
   p The popular vote was #{oldsong.result}
   p #{oldsong.comments}
   a(href=oldsong.weblink) Listen to it here
+  if songVotes && songVotes.length
+    h2 Ranking of songs by vote
+    hr
+    each songVote in songVotes
+      if (songVote.result)
+        if (songVote.ranking)
+          p(class="song") (#{songVote.result})  #{songVote.ranking}) #{songVote.title} by #{songVote.artist}
+        else
+          p(class="song") (#{songVote.result})  #{songVote.title} by #{songVote.artist}

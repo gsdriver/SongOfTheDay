@@ -16,6 +16,10 @@ a.sotd-home {
 	text-transform: uppercase;
 }
 
+p.song {
+    font-weight: 700
+}
+
 h1 {
 	font-size: 28px;
 	color: #000;

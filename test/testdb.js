@@ -4,9 +4,9 @@ var storage = require("../website/storage");
 var AWS = require("aws-sdk");
 
 // So what do you want to test?
-var printUsers = true;
-var printSongs = false;
-var printVotes = false;
+var printUsers = false;
+var printSongs = true;
+var printVotes = true;
 var printComments = false;
 var getVoteDate = null; //"2016-12-28";
 var getCommentsDate = null; //"2016-12-28";
@@ -18,7 +18,7 @@ var deleteSongs = false;
 var deleteVotes = false;
 var deleteComments = false;
 
-var addSongs = true;
+var addSongs = false;
 var addVotes = false;
 var addComments = false;
 var addUsers = false;
@@ -329,7 +329,8 @@ if (addSongs)
 
     dynamodb.putItem({
         TableName: "SOTDSongData",
-        Item: { date: {S: "2016-12-25"},
+        Item: { date: {S: "2017-01-06"},
+                ranking: {N: "3"},
                 title: {S: "ROUND AND ROUND"},
                 artist: {S: "RATT"},
                 comments: {S: "Rocking song with Milton Berle in the video"},
@@ -343,7 +344,8 @@ if (addSongs)
 
     dynamodb.putItem({
         TableName: "SOTDSongData",
-        Item: { date: {S: "2016-12-28"},
+        Item: { date: {S: "2017-01-07"},
+                ranking: {N: "3"},
                 title: {S: "MAMA WEER ALL CRAZEE"},
                 artist: {S: "QUIET RIOT"},
                 comments: {S: "These guys can't spell"},
@@ -357,7 +359,8 @@ if (addSongs)
 
     dynamodb.putItem({
         TableName: "SOTDSongData",
-        Item: { date: {S: "2017-01-01"},
+        Item: { date: {S: "2017-01-09"},
+                ranking: {N: "3"},
                 title: {S: "NEW YEAR'S DAY"},
                 artist: {S: "U2"},
                 comments: {S: "Appropriate song for the holiday"},
@@ -374,12 +377,9 @@ if (addVotes)
 {
     var voteData;
 
-    voteData = storage.createVoteData(1, "2016-12-28", 3);
-    voteData.save();
-    voteData = storage.createVoteData(2, "2016-12-28", 2);
-    voteData.save();
-    voteData = storage.createVoteData(1, "2016-12-25", 4);
-    voteData.save();
+    voteData = storage.SaveVote(1, "2016-12-28", 3);
+    voteData = storage.SaveVote(2, "2016-12-28", 2);
+    voteData = storage.SaveVote(1, "2016-12-25", 4);
 }
 
 if (addComments)

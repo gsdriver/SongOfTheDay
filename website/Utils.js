@@ -68,6 +68,48 @@ module.exports = {
                 callback((song) ? null : {status: "Song not found"}, song);
             }
         });
+    },
+    GetSongVote : function(date, callback)
+    {
+        GetVoteResult(date, callback);
+    },
+    RankAllSongsByVote : function(date, callback)
+    {
+        // First, read all songs
+        // We should probably handle the maximum dataset limit (1MB), but frankly we're not going
+        // to have nearly that much data in this table
+        storage.ReadAllSongsBefore(date, (err, songList) =>
+        {
+            if (err)
+            {
+                console.log(err);
+                callback({status: err}, null);
+            }
+            else
+            {
+                // OK, calculate the vote for each song
+                var songsProcessed = 0;
+
+                if (!songList.length)
+                {
+                    // No songs, callback with empty list
+                    callback(null, songList);
+                }
+
+                songList.forEach(song => {
+                    GetVoteResult(song.date, (result) => {
+                        song.result = result;
+                        songsProcessed++;
+                        if (songsProcessed == songList.length)
+                        {
+                            // OK, we have them all - now sort them
+                            songList.sort((a,b) => (b.result-a.result));
+                            callback(null, songList);
+                        }
+                    })
+                });
+            }
+        });
     }
 };
 
@@ -144,4 +186,21 @@ function GetNowDateString()
     var day = date.getUTCDate();
 
     return (year + "-" + ((month < 10) ? "0" : "") + month + "-" + ((day < 10) ? "0" : "") + day);
+}
+
+function GetVoteResult(date, callback)
+{
+    // Process the votes (get an average), and return everything
+    var voteTotal = 0;
+    var result;
+
+    storage.GetVotesForDate(date, (err, votes) => {
+        if (votes && votes.length)
+        {
+            votes.forEach(vote => (voteTotal += parseInt(vote.vote)));
+            result = (voteTotal / votes.length);
+        }
+
+        callback(result);
+    });
 }

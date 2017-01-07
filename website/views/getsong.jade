@@ -3,7 +3,8 @@ extends layout
 block content
   h1= title
   hr
-  p The song for #{song.date} is #{song.title} by #{song.artist}
+  p The song for #{song.date} is
+  p(class="song") #{song.ranking}) #{song.title} by #{song.artist}
   p #{song.comments}
   a(href=song.weblink target="_blank") Listen to it here
   = "\n"

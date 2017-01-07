@@ -32,22 +32,27 @@ router.get('/', function(req, res, next) {
                     }
 
                     // Process the votes (get an average), and return everything
-                    var voteTotal = 0;
-
-                    storage.GetVotesForDate(oldsong.date, (err, votes) => {
-                        if (votes && votes.length)
-                        {
-                            votes.forEach(vote => (voteTotal += parseInt(vote.vote)));
-                            oldsong.result = String(voteTotal / votes.length);
-                        }
-                        else
-                        {
-                            oldsong.result = "No results";
-                        }
-
+                    utils.GetSongVote(oldsong.date, result => {
+                        oldsong.result = (result) ? result.toFixed(2) : "";
                         params.oldsong = oldsong;
                         params.song = song;
-                        res.render("getresults", params);
+
+                        // And finally, let's get the full list of voted songs
+                        utils.RankAllSongsByVote(song.date, (err, songVotes) => {
+                            if (songVotes)
+                            {
+                                songVotes.forEach(songVote => {
+                                    if (songVote.result)
+                                    {
+                                        songVote.result = songVote.result.toFixed(2);
+                                    }
+                                });
+
+                                params.songVotes = songVotes;
+                            }
+
+                            res.render("getresults", params);
+                        });
                     });
                 });
             }

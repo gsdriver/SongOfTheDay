@@ -33,7 +33,7 @@ function AddSongs(songlist, callback)
 
     songlist.forEach(song => {
         let dbItem = {TableName: "SOTDSongData",
-                      Item: { date: {S: song.date}, title: {S: song.title}, artist: {S: song.artist} }};
+                      Item: { date: {S: song.date}, ranking: {N: song.ranking.toString()}, title: {S: song.title}, artist: {S: song.artist} }};
 
         if (song.comments)
         {
@@ -54,6 +54,11 @@ function AddSongs(songlist, callback)
 
         dynamodb.putItem(dbItem, function(err, data) {
             itemsToAdd--;
+            if (err)
+            {
+                console.log("Error " + err + " on " + JSON.stringify(dbItem));
+            }
+
             if (itemsToAdd == 0)
             {
                 // All done
@@ -64,7 +69,7 @@ function AddSongs(songlist, callback)
 }
 
 // Format is tab-delimited file with fields in the following order:
-//    date, title, artist, comments, highVote, lowVote, weblink
+//    date, ranking, title, artist, comments, highVote, lowVote, weblink
 // Date should be of the format YYYY-MM-DD
 // Date, title, and artist are required - other fields are optional
 function ReadSongsFromFile(data)
@@ -76,29 +81,30 @@ function ReadSongsFromFile(data)
         let fields = line.split("\t");
         var song = {};
 
-        // We need 7 fields to process - no more no less
-        if (fields.length == 7)
+        // We need 8 fields to process - no more no less
+        if (fields.length == 8)
         {
             // Date, title, and artist are required
             // Might want to do some verification of the date format?
-            song.date = fields[0];
-            song.title = fields[1];
-            song.artist = fields[2];
-            if (fields[3].length)
-            {
-                song.comments = fields[3];
-            }
+            song.date = fields[0].replace(/[/"]/g,'');
+            song.ranking = parseInt(fields[1].replace(/[/"]/g,''));
+            song.title = fields[2].replace(/[/"]/g,'');
+            song.artist = fields[3].replace(/[/"]/g,'');
             if (fields[4].length)
             {
-                song.highVote = fields[4];
+                song.comments = fields[4].replace(/[/"]/g,'');
             }
             if (fields[5].length)
             {
-                song.lowVote = fields[5];
+                song.highVote = fields[5].replace(/[/"]/g,'');
             }
             if (fields[6].length)
             {
-                song.weblink = fields[6];
+                song.lowVote = fields[6].replace(/[/"]/g,'');
+            }
+            if (fields[7].length)
+            {
+                song.weblink = fields[7].replace(/[/"]/g,'');
             }
 
             songlist.push(song);
