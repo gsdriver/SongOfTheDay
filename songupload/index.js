@@ -86,25 +86,25 @@ function ReadSongsFromFile(data)
         {
             // Date, title, and artist are required
             // Might want to do some verification of the date format?
-            song.date = fields[0].replace(/[/"]/g,'');
-            song.ranking = parseInt(fields[1].replace(/[/"]/g,''));
-            song.title = fields[2].replace(/[/"]/g,'');
-            song.artist = fields[3].replace(/[/"]/g,'');
+            song.date = fields[0].replace(/"/g,'');
+            song.ranking = parseInt(fields[1].replace(/"/g,''));
+            song.title = fields[2].replace(/"/g,'');
+            song.artist = fields[3].replace(/"/g,'');
             if (fields[4].length)
             {
-                song.comments = fields[4].replace(/[/"]/g,'');
+                song.comments = fields[4].replace(/"/g,'');
             }
             if (fields[5].length)
             {
-                song.highVote = fields[5].replace(/[/"]/g,'');
+                song.highVote = fields[5].replace(/"/g,'');
             }
             if (fields[6].length)
             {
-                song.lowVote = fields[6].replace(/[/"]/g,'');
+                song.lowVote = fields[6].replace(/"/g,'');
             }
             if (fields[7].length)
             {
-                song.weblink = fields[7].replace(/[/"]/g,'');
+                song.weblink = fields[7].replace(/"/g,'');
             }
 
             songlist.push(song);
