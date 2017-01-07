@@ -51,6 +51,25 @@ module.exports = {
             }
         });
     },
+    // Reads a song for a specific date
+    GetSongForDate : function(date, callback) {
+        dynamodb.getItem({TableName: 'SOTDSongData',
+                          Key: { date: {S: date}}}, function (error, data) {
+            var voteData;
+
+            if (error || (data.Item == undefined))
+            {
+                // Sorry, we don't have a vote for this user/date combination
+                // You need to explicitly create a new one
+                console.log("Can't find vote for " + userID + " on " + date);
+                callback("novote", null);
+            }
+            else
+            {
+                callback(null, SongFromData(data.Item));
+            }
+        });
+    },
     // Reads in all songs from the table
     ReadAllSongsBefore: function(date, callback) {
         dynamodb.scan({TableName: 'SOTDSongData'}, function (error, data) {

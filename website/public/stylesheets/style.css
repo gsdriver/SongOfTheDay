@@ -16,6 +16,13 @@ a.sotd-home {
 	text-transform: uppercase;
 }
 
+a.song {
+	color: #000;
+	font-weight: 700;
+	text-decoration: none;
+	text-transform: uppercase;
+}
+
 p.song {
     font-weight: 700
 }

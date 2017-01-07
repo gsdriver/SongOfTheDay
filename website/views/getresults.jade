@@ -47,7 +47,5 @@ block content
     hr
     each songVote in songVotes
       if (songVote.result)
-        if (songVote.ranking)
-          p(class="song") (#{songVote.result})  #{songVote.ranking}) #{songVote.title} by #{songVote.artist}
-        else
-          p(class="song") (#{songVote.result})  #{songVote.title} by #{songVote.artist}
+        a(class="song" href="../getsong/?date=" + songVote.date) (#{songVote.result})  #{songVote.ranking}) #{songVote.title} by #{songVote.artist}
+        br

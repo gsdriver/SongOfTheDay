@@ -11,7 +11,7 @@ var config = require("../config");
 //   If the user is logged in and registered with SOTD, then we display the voting options
 router.post('/', function(req, res, next) {
     // Start by loading the song
-    var params = { title: "Song of the Day", loginlink: "\\login\\facebook" };
+    var params = { title: "Song of the Day", loginlink: "\\login\\facebook", currentSong: true };
     var userID = req.body.id;
 
     utils.GetSong(true, (err, song) => {
@@ -55,6 +55,31 @@ router.post('/', function(req, res, next) {
                 params.loggedIn = false;
                 res.render("getsong", params);
             }
+        }
+    });
+});
+
+router.get('/', function(req, res, next) {
+    // Start by loading the song for the date
+    var params = { title: "Song of the Day", userID: 0, loggedIn: true, historicSong: true };
+
+    storage.GetSongForDate(req.query.date, (err, song) => {
+        if (err)
+        {
+            // Just go to home page
+            res.redirect("/");
+        }
+        else
+        {
+            params.song = song;
+
+            storage.GetCommentsForDate(song.date, (err, comments) => {
+                if (comments && (comments.length > 0))
+                {
+                    params.comments = comments;
+                }
+                res.render("getsong", params);
+            });
         }
     });
 });
