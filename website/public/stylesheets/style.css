@@ -73,6 +73,8 @@ input[type=button], input[type=submit], input[type=reset] {
 .body .message {
   min-height: 30px;
   border-radius: 3px;
+  border-bottom: 1px solid #ddd;
+  border-bottom-left-radius: 3pt;
   font-family: Arial;
   font-size: 14px;
   line-height: 1.5;
