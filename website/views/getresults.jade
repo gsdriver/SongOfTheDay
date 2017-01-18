@@ -5,6 +5,7 @@ block content
   script().
     $(document).ready(function() {
         $("#formComment").submit(function(event) {
+            $("#noComments").remove();
             $("div.body").append("<p>" + "#{username}" + "</p><div class='message'><p>" + $("#commentText").val() + "</p></div>");
             event.preventDefault();
             $.post("/comment", {date: "#{song.date}", id: "#{userID}", comment: $("#commentText").val()}, (data, result) => {
@@ -36,14 +37,14 @@ block content
         = "\n"
       h2 Previous comments
       hr
-      if comments
-        div(class="body")
+      div(class="body")
+        if comments
           each comment in comments
             p #{comment.name}
             div(class="message")
               p #{comment.comment}
-      else
-        p No comments left yet
+        else
+          p#noComments No comments left yet
   h2 Results from yesterday
   hr
   p The song for #{oldsong.date} was

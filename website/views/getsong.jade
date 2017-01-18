@@ -5,6 +5,7 @@ block content
   script().
     $(document).ready(function() {
         $("#formComment").submit(function(event) {
+            $("#noComments").remove();
             $("div.body").append("<p>" + "#{username}" + "</p><div class='message'><p>" + $("#commentText").val() + "</p></div>");
             event.preventDefault();
             $.post("/comment", {date: "#{song.date}", id: "#{userID}", comment: $("#commentText").val()}, (data, result) => {
@@ -68,13 +69,13 @@ block content
       if yourVote || historicSong
           h2 Previous comments
           hr
-          if comments
-            div(class="body")
+          div(class="body")
+            if comments
               each comment in comments
                 p #{comment.name}
                 div(class="message")
                   p #{comment.comment}
-          else
-            p No comments left yet
+            else
+              p#noComments No comments left yet
   else
     a(href=loginlink) Click here to login via Facebook if you would like to vote
