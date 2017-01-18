@@ -26,27 +26,31 @@ router.post('/', function(req, res, next) {
             params.userID = userID;
             if (userID)
             {
-                // We have an ID - let them vote (check first if they've already voted)
-                params.loggedIn = true;
-                storage.GetVote(userID, song.date, (err, vote) => {
-                    if (vote)
-                    {
-                        params.yourVote = vote;
+                // Get the username too
+                storage.GetUserName(userID, (err, username) => {
+                    // We have an ID - let them vote (check first if they've already voted)
+                    params.loggedIn = true;
+                    params.username = username;
+                    storage.GetVote(userID, song.date, (err, vote) => {
+                        if (vote)
+                        {
+                            params.yourVote = vote;
 
-                        // Since they already voted, we should show them comments too
-                        storage.GetCommentsForDate(song.date, (err, comments) => {
-                            if (comments && (comments.length > 0))
-                            {
-                                params.comments = comments;
-                            }
+                            // Since they already voted, we should show them comments too
+                            storage.GetCommentsForDate(song.date, (err, comments) => {
+                                if (comments && (comments.length > 0))
+                                {
+                                    params.comments = comments;
+                                }
+                                res.render("getsong", params);
+                            });
+                        }
+                        else
+                        {
+                            // Just show the song
                             res.render("getsong", params);
-                        });
-                    }
-                    else
-                    {
-                        // Just show the song
-                        res.render("getsong", params);
-                    }
+                        }
+                    });
                 });
             }
             else

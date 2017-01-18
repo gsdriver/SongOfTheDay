@@ -1,6 +1,17 @@
 extends layout
 
 block content
+  script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js")
+  script().
+    $(document).ready(function() {
+        $("#formComment").submit(function(event) {
+            $("div.body").append("<p>" + "#{username}" + "</p><div class='message'><p>" + $("#commentText").val() + "</p></div>");
+            event.preventDefault();
+            $.post("/comment", {date: "#{song.date}", id: "#{userID}", comment: $("#commentText").val()}, (data, result) => {
+                $("#commentText").val("");
+            });
+        });
+    });
   a(class="sotd-home" href="../") #{title}
   hr
   if currentSong
@@ -22,6 +33,7 @@ block content
             form(action="/vote", method="post")
               input(type="hidden", name="id" value=userID)
               input(type="hidden", name="date" value=song.date)
+              input(type="hidden", name="username" value=username)
               input(type="radio", name="vote", value=5, checked=(yourVote == 5) ? true : false)
               strong 5 -
               |  #{song.highVote}
@@ -48,12 +60,10 @@ block content
                   h2 Leave your comments here
                   hr
                   div#comment-box
-                    form(action="/comment" method="post")
-                      input(type="hidden" name="date" value=song.date)
-                      input(type="hidden" name="id" value=userID)
-                      textarea(rows="4" cols="40" name="comment")
+                    form(action="/comment" id="formComment" method="post")
+                      textarea(rows="4" cols="40" id="commentText" name="comment")
                       p
-                      input(type="submit", value="Leave Comments")
+                      input(type="submit", id="btnComment" value="Leave Comments")
                     = "\n"
       if yourVote || historicSong
           h2 Previous comments

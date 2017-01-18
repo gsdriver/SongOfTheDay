@@ -6,8 +6,8 @@ var storage = require("../storage");
 router.post('*', function(req, res, next) {
     // OK, let's leave comments for this song
     storage.AddCommentFromUser(req.body.date, req.body.id, req.body.comment, (err) => {
-        // Redirect them to the results page (and their comments should now show)
-        res.redirect("/getresults?id=" + req.body.id);
+        res.status(err ? 500 : 200);
+        res.send("Comment received");
     });
 });
 

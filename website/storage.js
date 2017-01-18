@@ -112,6 +112,24 @@ module.exports = {
             }
         });
     },
+    // Gets a user name from ID
+    GetUserName : function(userID, callback) {
+        dynamodb.getItem({TableName: 'SOTDUserData',
+                          Key: { userID: {S: userID}}}, function (error, data) {
+            let username;
+
+            if (error || (data.Item == undefined))
+            {
+                username = "Unknown";
+            }
+            else
+            {
+                username = (data.Item.name.S && (data.Item.name.S.length > 0)) ? data.Item.name.S : "Unknown";
+            }
+
+            callback(null, username);
+        });
+    },
     // Saves a vote for a user
     SaveVote : function(userID, date, vote, callback) {
         dynamodb.putItem({ TableName: 'SOTDVotes', Item: { userID: {S: userID}, date: {S: date}, vote: {S: vote}}}, (err, data) =>

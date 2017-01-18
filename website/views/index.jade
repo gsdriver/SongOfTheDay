@@ -14,7 +14,7 @@ block content
             console.log("Got status " + response.status);
             if (response.status == "connected")
             {
-                post('/getsong', {id: response.authResponse.userID});
+                post('/getsong', {id: response.authResponse.userID, username: JSON.stringify(response.authResponse)});
             }
             else
             {

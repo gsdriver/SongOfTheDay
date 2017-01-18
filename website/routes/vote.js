@@ -10,7 +10,7 @@ router.post('*', function(req, res, next) {
         if ((err) || (song.date != req.body.date))
         {
             // You are trying to vote for a different song than the current one
-            res.redirect("/getresults/?closed=true&id=" + req.body.id);
+            res.redirect(encodeURI("/getresults/?closed=true&id=" + req.body.id + "&name=" + req.body.username));
         }
         else
         {
@@ -23,7 +23,7 @@ router.post('*', function(req, res, next) {
                 else
                 {
                     // Let them know the results of yesterday's song
-                    res.redirect("/getresults/?id=" + req.body.id);
+                    res.redirect(encodeURI("/getresults/?id=" + req.body.id + "&name=" + req.body.username));
                 }
             });
         }

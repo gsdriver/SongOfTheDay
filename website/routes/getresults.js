@@ -5,7 +5,7 @@ var storage = require("../storage");
 
 // Get results from SOTD
 router.get('/', function(req, res, next) {
-    var params = {title: "Song of the Day", id: req.query.id};
+    var params = {title: "Song of the Day", userID: req.query.id, username: req.query.name};
 
     if (req.query.closed)
     {
@@ -27,7 +27,6 @@ router.get('/', function(req, res, next) {
                     // Only pass comments to the form if there are comments
                     if (comments && (comments.length > 0))
                     {
-                    console.log(JSON.stringify(comments));
                         params.comments = comments;
                     }
 
