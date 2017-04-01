@@ -1,0 +1,34 @@
+VoteExcellentIntent excellent
+VoteExcellentIntent excellent song
+VoteExcellentIntent this is excellent
+VoteExcellentIntent this is an excellent song
+VoteExcellentIntent vote excellent
+VoteExcellentIntent vote excellent song
+
+VoteGreatIntent great
+VoteGreatIntent great song
+VoteGreatIntent this is great
+VoteGreatIntent this is a great song
+VoteGreatIntent vote great
+VoteGreatIntent vote great song
+
+VoteDecentIntent decent
+VoteDecentIntent decent song
+VoteDecentIntent this is decent
+VoteDecentIntent this is a decent song
+VoteDecentIntent vote decent
+VoteDecentIntent vote decent song
+
+VoteSucksIntent this sucks
+VoteSucksIntent this song sucks
+VoteSucksIntent sucks
+VoteSucksIntent vote this sucks
+VoteSucksIntent vote sucks
+
+VoteTerribleIntent terrible
+VoteTerribleIntent terrible song
+VoteTerribleIntent this is terrible
+VoteTerribleIntent this is a terrible song
+VoteTerribleIntent vote terrible
+VoteTerribleIntent vote terrible song
+

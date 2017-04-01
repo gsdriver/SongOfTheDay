@@ -28,7 +28,13 @@ passport.use(new Strategy({
     // be associated with a user record in the application's database, which
     // allows for account linking and authentication with other identity
     // providers.
-    return cb(null, profile);
+    // You can call RegisterUser here with profile._json.id, name, and email
+    // then return the ID when you call the cb function
+    storage.RegisterUser(profile._json.id, profile._json.name, profile._json.email, err => {
+        // What gets passed back to cb will then be called in serializeUser
+        console.log("Registered user " + profile._json.id);
+        return cb(null, profile._json.id);
+    });
   }));
 
 // Configure Passport authenticated session persistence.
@@ -41,10 +47,13 @@ passport.use(new Strategy({
 // example does not have a database, the complete Facebook profile is serialized
 // and deserialized.
 passport.serializeUser(function(user, cb) {
+    // This value will be passed into the callback function (accessed via req.user)
+console.log("serialize " + JSON.stringify(user));
     cb(null, user);
 });
 
 passport.deserializeUser(function(obj, cb) {
+console.log("deserialize " + obj);
     cb(null, obj);
 });
 
@@ -52,6 +61,7 @@ var getresults = require('./routes/getresults');
 var vote = require('./routes/vote');
 var getsong = require('./routes/getsong');
 var comment = require('./routes/comment');
+var song = require('./routes/song');
 
 var app = express();
 
@@ -74,6 +84,8 @@ app.use('/getsong', getsong);
 app.use('/getresults', getresults);
 app.use('/vote', vote);
 app.use('/comment', comment);
+// REST APIs
+app.use('/song', song);
 
 // Login pages to do OAuth
 app.get('/login/facebook',
@@ -82,12 +94,8 @@ app.get('/login/facebook',
 app.get('/login/facebook/return',
   passport.authenticate('facebook', { failureRedirect: '/' }),
   function(req, res) {
-    // OK, register the user and show them the song
-    storage.RegisterUser(req.user._json.id, req.user._json.name, req.user._json.email, err => {
-        // Great, go back to the main page
-        console.log("Registered user");
-        res.redirect("/");
-    });
+  console.log(JSON.stringify(req.user));
+    res.redirect("/");
 });
 
 app.get('/', function(req, res, next) {

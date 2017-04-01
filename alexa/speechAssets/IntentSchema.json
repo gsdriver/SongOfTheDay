@@ -1,0 +1,28 @@
+{
+  "intents": [
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    },
+    {
+      "intent": "VoteExcellentIntent"
+    },
+    {
+      "intent": "VoteGreatIntent"
+    },
+    {
+      "intent": "VoteDecentIntent"
+    },
+    {
+      "intent": "VoteSucksIntent"
+    },
+    {
+      "intent": "VoteTerribleIntent"
+    }
+  ]
+}

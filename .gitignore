@@ -1,3 +1,6 @@
 .idea
 node_modules
 songupload.zip
+build
+update.bat
+SongOfTheDay.zip

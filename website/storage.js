@@ -59,10 +59,9 @@ module.exports = {
 
             if (error || (data.Item == undefined))
             {
-                // Sorry, we don't have a vote for this user/date combination
-                // You need to explicitly create a new one
-                console.log("Can't find vote for " + userID + " on " + date);
-                callback("novote", null);
+                // Sorry, we don't have a song for this date
+                console.log("Can't find song for " + date);
+                callback("nosong", null);
             }
             else
             {
