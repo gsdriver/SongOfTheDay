@@ -6,6 +6,6 @@
 
 module.exports = {
   handleIntent: function(intent, session, context, callback) {
-    callback(session, context, 'Thanks for listening. Goodbye.', null, null, null);
+    callback(session, context, 'Thanks for listening. Goodbye.', null, false, null);
   },
 };

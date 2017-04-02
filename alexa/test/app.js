@@ -6,6 +6,7 @@ function BuildEvent(argv)
   var help = {'name': 'AMAZON.HelpIntent', 'slots': {}};
   var stop = {'name': 'AMAZON.StopIntent', 'slots': {}};
   var cancel = {'name': 'AMAZON.CancelIntent', 'slots': {}};
+  var voteGreat = {'name': 'VoteGreatIntent', 'slots': {}};
 
   var lambda = {
     "session": {
@@ -16,7 +17,8 @@ function BuildEvent(argv)
       "attributes": {},
       //"attributes": {"song":{"date":"2017-03-31","title":"CRAZY ON YOU","artist":"HEART","comments":"This song is featured on Guitar Hero, which of course I am an expert at."}},
       "user": {
-        "userId": "amzn1.ask.account.AFLJ3RYNI3X6MQMX4KVH52CZKDSI6PMWCQWRBHSPJJPR2MKGDNJHW36XF2ET6I2BFUDRKH3SR2ACZ5VCRLXLGJFBTQGY4RNYZA763JED57USTK6F7IRYT6KR3XYO2ZTKK55OM6ID2WQXQKKXJCYMWXQ74YXREHVTQ3VUD5QHYBJTKHDDH5R4ALQAGIQKPFL52A3HQ377WNCCHYI"
+          "userId": "amzn1.ask.account.AGZKAFFHJJ54RQE4FKPXH3I5SU2QLHMROEHH4IXWTCADH7CZMD7LJ5NJ2MQ7QUC53ML2BY47X6TS6ZIRMNXEJLTY7VCVZTDPJH5RATRKMEIFN5JIFG63OQDW2WONCAWX3RESZHYK3T4LVWNJQYU5OJI75A7GBTDBVRJBD3BZXSQAQ3P7CPJ5SDW3OZKH4RDQCO2ILBKQGVSJYPI",
+          "accessToken": "EAAYKwPzr298BAHcyFaPGYlWBY2XjZBPMqF366zP8J2ZCGZCptOPbAJAe5BIjGn29YLaiPZB26qaMWBIrCy20OYXubwg9mSo1Yd2UsSC7GzRGzySjp2dQzxZB9bUkqIcQ6aROg0XlK2M3F41yiZC8eKEZBr05gZBc2ZCsZD"
       },
       "new": true
     },
@@ -58,6 +60,8 @@ function BuildEvent(argv)
     return null;
   } else if (argv[2] == 'launch') {
     return openEvent;
+  } else if (argv[2] == 'votegreat') {
+    lambda.request.intent = voteGreat;
   } else if (argv[2] == 'help') {
     lambda.request.intent = help;
   } else if (argv[2] == 'stop') {

@@ -8,9 +8,10 @@ const http = require('http');
 const Help = require('./intents/Help');
 const Stop = require('./intents/Stop');
 const Cancel = require('./intents/Cancel');
+const Vote = require('./intents/Vote');
 const utils = require('./utils');
 
-function buildResponse(session, speech, speechSSML, shouldEndSession, reprompt, cardContent) {
+function buildResponse(session, speech, showLinkCard, shouldEndSession, reprompt, cardContent) {
   const alexaResponse = {
     version: '1.0',
     response: {
@@ -22,16 +23,15 @@ function buildResponse(session, speech, speechSSML, shouldEndSession, reprompt, 
     },
   };
 
-  if (speechSSML) {
-    alexaResponse.response.outputSpeech.type = 'SSML';
-    alexaResponse.response.outputSpeech.ssml = speechSSML;
-  }
-
   if (session && session.attributes) {
     alexaResponse.sessionAttributes = session.attributes;
   }
 
-  if (cardContent) {
+  if (showLinkCard) {
+    alexaResponse.response.card = {
+      type: 'LinkAccount'
+    };
+  } else if (cardContent) {
     alexaResponse.response.card = {
         type: 'Simple',
         title: 'Song of the Day',
@@ -53,7 +53,7 @@ function buildResponse(session, speech, speechSSML, shouldEndSession, reprompt, 
   return alexaResponse;
 }
 
-function intentResponse(session, context, speechError, speech, speechSSML, reprompt) {
+function intentResponse(session, context, speechError, speech, showLinkCard, reprompt) {
   let response;
   const shouldEndSession = (reprompt ? false : true);
 
@@ -61,9 +61,7 @@ function intentResponse(session, context, speechError, speech, speechSSML, repro
     response = buildResponse(session, speechError, null, shouldEndSession, reprompt);
   } else {
     // Use speech as the card content too
-    const cardContent = (speechSSML) ? utils.ssmlToSpeech(speechSSML) : speech;
-
-    response = buildResponse(session, speech, speechSSML, shouldEndSession, reprompt, cardContent);
+    response = buildResponse(session, speech, showLinkCard, shouldEndSession, reprompt, speech);
   }
 
   context.succeed(response);
@@ -97,11 +95,7 @@ function onIntent(request, context, session) {
     case 'VoteDecentIntent':
     case 'VoteSucksIntent':
     case 'VoteTerribleIntent':
-      const voteMapping = {'VoteExcellentIntent': 5, 'VoteGreatIntent': 4,
-        'VoteDecentIntent': 3, 'VoteSucksIntent': 2, 'VoteTerribleIntent': 1};
-      const vote = voteMapping[request.intent.name];
-
-      intentResponse(session, context, null, 'To be implemented to record a vote of ' + vote, null, null);
+      Vote.handleIntent(request.intent, session, context, intentResponse);
       break;
     default:
       console.log('Unknown intent ' + request.intent.name);
