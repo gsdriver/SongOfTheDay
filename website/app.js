@@ -62,6 +62,7 @@ var vote = require('./routes/vote');
 var getsong = require('./routes/getsong');
 var comment = require('./routes/comment');
 var song = require('./routes/song');
+var recordvote = require('./routes/recordvote');
 
 var app = express();
 
@@ -86,6 +87,7 @@ app.use('/vote', vote);
 app.use('/comment', comment);
 // REST APIs
 app.use('/song', song);
+app.use('/recordvote', recordvote);
 
 // Login pages to do OAuth
 app.get('/login/facebook',

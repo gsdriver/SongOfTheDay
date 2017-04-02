@@ -9,8 +9,8 @@ const utils = require('../utils');
 module.exports = {
   handleIntent: function(intent, session, context, callback) {
     // Tell them the song if we have it
-    utils.getSong(session, (helpText, reprompt) => {
-      callback(session, context, null, helpText, false, reprompt);
+    utils.getSong(session, (helpText, reprompt, isLinked) => {
+      callback(session, context, null, helpText, !isLinked, reprompt);
     });
   },
 };

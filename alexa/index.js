@@ -4,12 +4,12 @@
 
 'use strict';
 
-const http = require('http');
 const Help = require('./intents/Help');
 const Stop = require('./intents/Stop');
 const Cancel = require('./intents/Cancel');
 const Vote = require('./intents/Vote');
 const utils = require('./utils');
+const request = require('request');
 
 function buildResponse(session, speech, showLinkCard, shouldEndSession, reprompt, cardContent) {
   const alexaResponse = {
@@ -68,8 +68,8 @@ function intentResponse(session, context, speechError, speech, showLinkCard, rep
 }
 
 function onLaunch(request, context, session) {
-  utils.getSong(session, (speech, reprompt) => {
-    const response = buildResponse(null, speech, null, false, reprompt, speech);
+  utils.getSong(session, (speech, reprompt, isLinked) => {
+    const response = buildResponse(null, speech, null, !isLinked, reprompt, speech);
     context.succeed(response);
   });
 }
@@ -157,18 +157,9 @@ exports.handler = function(event, context) {
 
 function loadSong(callback) {
   // Call the service to pull the song details
-  let req = http.request({hostname: 'sotd-env.gikgqsyvat.us-west-2.elasticbeanstalk.com',
-    path: '/song', method: 'GET'}, (res) => {
-    if (res.statusCode === 200) {
-      // Copy the result into song
-      let fulltext = '';
-      res.on('data', (data) => {fulltext += data;});
-      res.on('end', () => callback(null, JSON.parse(fulltext)));
-    } else {
-      callback('Problem calling endpoint', null);
-    }
+  request.get('http://sotd-env.gikgqsyvat.us-west-2.elasticbeanstalk.com/song', (err, res, body) => {
+    console.log(body);
+    callback(err, JSON.parse(body));
   });
-
-  req.end();
-  req.on('error', (e) => { callback(e, null); });
 }
+

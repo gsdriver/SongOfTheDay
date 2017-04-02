@@ -1,0 +1,19 @@
+{
+  "name": "sotd-alexa",
+  "version": "1.0.0",
+  "description": "Song of the Day Alexa companion",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "facebook-node": "0.0.3",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gsdriver@live.com",
+  "license": "ISC"
+}
